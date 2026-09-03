@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Seif",
+  "mainBinaryName": "seif",
+  "version": "1.4.0",
+  "identifier": "app.seif.vault",
+
+  "build": {
+    "frontendDist": "../ui"
+  },
+
+  "app": {
+    "withGlobalTauri": true,
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; form-action 'none'"
+    },
+    "windows": [
+      {
+        "label": "main",
+        "url": "index.html",
+        "title": "Сейф",
+        "width": 1180,
+        "height": 740,
+        "minWidth": 900,
+        "minHeight": 560,
+        "center": true,
+        "decorations": false,
+        "resizable": true,
+        "visible": false,
+        "backgroundColor": "#161826"
+      },
+      {
+        "label": "quick",
+        "url": "quick.html",
+        "title": "Сейф — быстрый доступ",
+        "width": 700,
+        "height": 392,
+        "center": true,
+        "decorations": false,
+        "resizable": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "backgroundColor": "#161826"
+      }
+    ]
+  },
+
+  "bundle": {
+    "active": true,
+    "targets": ["deb", "appimage", "nsis", "msi"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Локальное хранилище паролей",
+    "longDescription": "«Сейф» — менеджер паролей, заметок, ключей API и документов. Хранилище шифруется на устройстве: ключ выводится из мастер-пароля алгоритмом Argon2id и на диск не попадает. Есть быстрый доступ по горячей клавише поверх любого окна, генератор паролей и автоочистка буфера обмена.",
+    "category": "Utility",
+    "copyright": "© Сейф",
+    "publisher": "Seif",
+    "licenseFile": "../LICENSE.txt",
+
+    "linux": {
+      "deb": {
+        "desktopTemplate": "packaging/seif.desktop",
+        "section": "utils",
+        "priority": "optional"
+      }
+    },
+
+    "windows": {
+      "nsis": {
+        "languages": ["Russian", "English"],
+        "displayLanguageSelector": false,
+        "installMode": "both"
+      }
+    }
+  }
+}

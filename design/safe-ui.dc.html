@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-c00a1cc1-6ea5-4e2f-9973-eb83746b2714/styles.css">
+<script src="_ds/nocturne-c00a1cc1-6ea5-4e2f-9973-eb83746b2714/_ds_bundle.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+body{margin:0;background:#0d0e16;font-family:Inter,system-ui,sans-serif;color:#e9e9ed}
+a{color:#9184d9}a:hover{color:#b5abfc}
+.dv-turn{padding:44px 48px 36px;border-bottom:1px solid rgba(233,233,237,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#e9e9ed;color:#161826;border-radius:4px;text-decoration:none}
+.dv-tname{font:500 13px/1.2 Inter,system-ui,sans-serif;color:#e9e9ed}
+.dv-intro{max-width:720px;margin:0 0 26px;font:400 12px/1.6 Inter,system-ui,sans-serif;color:rgba(233,233,237,.5)}
+.dv-opts{display:flex;flex-wrap:wrap;gap:34px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(233,233,237,.12);color:#e9e9ed;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11.5px/1.3 Inter,system-ui,sans-serif;color:rgba(233,233,237,.55)}
+.dv-card{max-width:100%;background:#161826;border:1px solid rgba(233,233,237,.10);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);overflow:hidden}
+.dv-opt:target .dv-oid{background:#9184d9;color:#161826}
+.dv-next{margin:26px 0 0;font:12px/1.6 Inter,system-ui,sans-serif;color:rgba(233,233,237,.45)}
+</style></helmet>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">«Сейф» — шесть экранов, варианты для быстрого окна и списка</span></div>
+<p class="dv-intro">Допущения: локальное шифрование без облака, одно хранилище, четыре типа записей (пароли, заметки, ключи API, документы). Быстрый доступ — резидентное мини-окно у трея, вызывается горячей клавишей поверх любого приложения; главное действие — Enter копирует пароль и окно закрывается. Оформление — Nocturne: тёмный фон, контурные кнопки, акцент линией, без заливок.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Быстрое окно — палитра поиска. Печатаешь, Enter копирует</div>
+<div class="dv-card" style="width:620px">
+<div style="display:flex;align-items:center;gap:11px;padding:15px 17px;border-bottom:1px solid var(--color-divider)">
+<i class="ph ph-magnifying-glass" style="font-size:19px;color:var(--color-neutral-500)"></i>
+<div style="flex:1;font-size:17px;letter-spacing:-.01em">gith<span style="display:inline-block;width:1.5px;height:17px;background:var(--color-accent);vertical-align:-3px;margin-left:1px"></span></div>
+<span style="font-size:10.5px;color:var(--color-neutral-600);border:1px solid var(--color-divider);border-radius:4px;padding:2px 7px">esc</span>
+</div>
+<div style="padding:8px 0 4px">
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:4px 17px 6px">Совпадения</div>
+<div style="display:flex;align-items:center;gap:12px;padding:9px 17px;background:linear-gradient(90deg,color-mix(in srgb,var(--color-accent) 15%,transparent),transparent 72%);box-shadow:inset 2px 0 0 var(--color-accent)">
+<div style="width:31px;height:31px;flex:none;border-radius:8px;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:16px"><i class="ph ph-github-logo"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px">GitHub</div><div style="font-size:11.5px;color:var(--color-neutral-500)">annakuz · github.com</div></div>
+<span style="font-size:11px;color:var(--color-accent)">⏎ копировать пароль</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:9px 17px">
+<div style="width:31px;height:31px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:16px"><i class="ph ph-code"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px">GitHub · токен CI</div><div style="font-size:11.5px;color:var(--color-neutral-500)">ключ API · истекает через 21 день</div></div>
+<span class="tag tag-neutral">ключ</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:9px 17px">
+<div style="width:31px;height:31px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:16px"><i class="ph ph-note"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px">GitHub · коды восстановления</div><div style="font-size:11.5px;color:var(--color-neutral-500)">защищённая заметка · 8 кодов</div></div>
+</div>
+<div style="height:1px;margin:8px 0;background:linear-gradient(to right,transparent,var(--color-divider) 48px,var(--color-divider) calc(100% - 48px),transparent)"></div>
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:2px 17px 6px">Действия</div>
+<div style="display:flex;align-items:center;gap:12px;padding:9px 17px">
+<div style="width:31px;height:31px;flex:none;border-radius:8px;border:1px solid var(--color-divider);color:var(--color-neutral-400);display:grid;place-items:center;font-size:15px"><i class="ph ph-plus"></i></div>
+<div style="flex:1;font-size:14px">Создать запись «gith…»</div>
+<span style="font-size:11px;color:var(--color-neutral-600)">⌘N</span>
+</div>
+</div>
+<sc-if value="{{ showKeyHints }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;gap:16px;padding:10px 17px;border-top:1px solid var(--color-divider);font-size:11px;color:var(--color-neutral-500)">
+<span>↑↓ выбор</span><span>⇥ поля записи</span><span>⌘⏎ открыть сайт</span>
+<span style="margin-left:auto;color:var(--color-neutral-600)">{{ hotkey }}</span>
+</div>
+</sc-if>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Быстрое окно — палитра с полями записи справа</div>
+<div class="dv-card" style="width:700px">
+<div style="display:flex;height:392px">
+<div style="width:290px;flex:none;border-right:1px solid var(--color-divider);display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:9px;padding:13px 14px;border-bottom:1px solid var(--color-divider)">
+<i class="ph ph-magnifying-glass" style="font-size:16px;color:var(--color-neutral-500)"></i>
+<div style="flex:1;font-size:14px">банк<span style="display:inline-block;width:1.5px;height:14px;background:var(--color-accent);vertical-align:-2px"></span></div>
+</div>
+<div style="flex:1;padding:6px 0;overflow:hidden">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:linear-gradient(90deg,color-mix(in srgb,var(--color-accent) 15%,transparent),transparent 80%);box-shadow:inset 2px 0 0 var(--color-accent)">
+<div style="width:26px;height:26px;flex:none;border-radius:7px;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:13px"><i class="ph ph-bank"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13px">Тинькофф</div><div style="font-size:11px;color:var(--color-neutral-500)">+7 918 ••• 41 20</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 14px">
+<div style="width:26px;height:26px;flex:none;border-radius:7px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:13px"><i class="ph ph-bank"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13px">Сбербанк Онлайн</div><div style="font-size:11px;color:var(--color-neutral-500)">anna.k</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 14px">
+<div style="width:26px;height:26px;flex:none;border-radius:7px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:13px"><i class="ph ph-note"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13px">Банковские реквизиты</div><div style="font-size:11px;color:var(--color-neutral-500)">заметка</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 14px">
+<div style="width:26px;height:26px;flex:none;border-radius:7px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:13px"><i class="ph ph-identification-card"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13px">Банковская ячейка · договор</div><div style="font-size:11px;color:var(--color-neutral-500)">документ</div></div>
+</div>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;min-width:0">
+<div style="padding:14px 16px 10px">
+<div style="display:flex;align-items:center;gap:10px">
+<div style="width:34px;height:34px;border-radius:9px;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:17px"><i class="ph ph-bank"></i></div>
+<div><div style="font-size:16px;font-weight:500">Тинькофф</div><div style="font-size:11.5px;color:var(--color-neutral-500)">Пароли · обновлён 24 дня назад</div></div>
+</div>
+</div>
+<div style="flex:1;padding:0 16px;display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--color-divider);border-radius:8px">
+<div style="flex:1;min-width:0"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600)">Логин</div><div style="font-size:13.5px;font-family:ui-monospace,Menlo,monospace">+7 918 ••• 41 20</div></div>
+<span style="font-size:11px;color:var(--color-neutral-600)">⇧⏎</span>
+<button class="btn btn-icon btn-ghost" style="width:28px;height:28px"><i class="ph ph-copy" style="font-size:15px"></i></button>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--color-accent);border-radius:8px;background:color-mix(in srgb,var(--color-accent) 8%,transparent)">
+<div style="flex:1;min-width:0"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-300)">Пароль</div><div style="font-size:13.5px;font-family:ui-monospace,Menlo,monospace">{{ secret }}</div></div>
+<span style="font-size:11px;color:var(--color-accent)">⏎</span>
+<button class="btn btn-icon btn-ghost" style="width:28px;height:28px"><i class="ph ph-copy" style="font-size:15px"></i></button>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--color-divider);border-radius:8px">
+<div style="flex:1;min-width:0"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600)">Код 2FA</div><div style="font-size:15px;font-family:ui-monospace,Menlo,monospace;letter-spacing:.14em">418 052</div></div>
+<svg width="22" height="22" viewBox="0 0 22 22" style="flex:none"><circle cx="11" cy="11" r="9" fill="none" stroke="#3f424d" stroke-width="2"></circle><circle cx="11" cy="11" r="9" fill="none" stroke="#9184d9" stroke-width="2" stroke-dasharray="56.5" stroke-dashoffset="20" stroke-linecap="round" transform="rotate(-90 11 11)"></circle></svg>
+<button class="btn btn-icon btn-ghost" style="width:28px;height:28px"><i class="ph ph-copy" style="font-size:15px"></i></button>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--color-divider);font-size:11px;color:var(--color-neutral-500)">
+<i class="ph ph-clock-countdown" style="font-size:14px;color:var(--color-accent)"></i>
+<span>Скопировано · буфер очистится через 0:19</span>
+<span style="margin-left:auto;color:var(--color-neutral-600)">{{ hotkey }}</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Мини-окно у трея — последние записи, копирование одним кликом</div>
+<div class="dv-card" style="width:520px;background:linear-gradient(160deg,#1b1d2b,#101119)">
+<div style="padding:26px 26px 0;display:flex;justify-content:flex-end">
+<div style="width:330px;border-radius:12px;background:var(--color-bg);box-shadow:var(--shadow-lg);overflow:hidden">
+<div style="display:flex;align-items:center;gap:8px;padding:11px 13px;border-bottom:1px solid var(--color-divider)">
+<i class="ph-fill ph-lock-simple-open" style="font-size:15px;color:var(--color-accent)"></i>
+<span style="font-size:13px;font-weight:500">Сейф</span>
+<span style="font-size:11px;color:var(--color-neutral-500)">разблокирован · 12 мин</span>
+<button class="btn btn-icon btn-ghost" style="width:24px;height:24px;margin-left:auto"><i class="ph ph-lock-key" style="font-size:14px"></i></button>
+</div>
+<div style="padding:9px 11px 4px">
+<div style="display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid var(--color-divider);border-radius:8px;background:var(--color-surface)">
+<i class="ph ph-magnifying-glass" style="font-size:14px;color:var(--color-neutral-600)"></i>
+<span style="font-size:12.5px;color:var(--color-neutral-600)">Поиск по 148 записям</span>
+</div>
+</div>
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:8px 13px 4px">Недавние</div>
+<div style="padding-bottom:4px">
+<div style="display:flex;align-items:center;gap:9px;padding:7px 13px;background:color-mix(in srgb,var(--color-text) 4%,transparent)">
+<div style="width:26px;height:26px;flex:none;border-radius:7px;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:13px"><i class="ph ph-github-logo"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:12.5px">GitHub</div><div style="font-size:10.5px;color:var(--color-neutral-500)">annakuz</div></div>
+<button class="btn btn-icon btn-primary" style="width:26px;height:26px;border-radius:7px"><i class="ph ph-copy" style="font-size:13px"></i></button>
+</div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 13px">
+<div style="width:26px;height:26px;flex:none;border-radius:7px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:12px;font-family:ui-monospace,Menlo,monospace">N</div>
+<div style="flex:1;min-width:0"><div style="font-size:12.5px">Notion</div><div style="font-size:10.5px;color:var(--color-neutral-500)">anna.k@fastmail.com</div></div>
+<button class="btn btn-icon btn-ghost" style="width:26px;height:26px"><i class="ph ph-copy" style="font-size:13px"></i></button>
+</div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 13px">
+<div style="width:26px;height:26px;flex:none;border-radius:7px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:13px"><i class="ph ph-code"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:12.5px">AWS · production</div><div style="font-size:10.5px;color:var(--color-neutral-500)">ключ доступа</div></div>
+<button class="btn btn-icon btn-ghost" style="width:26px;height:26px"><i class="ph ph-copy" style="font-size:13px"></i></button>
+</div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 13px">
+<div style="width:26px;height:26px;flex:none;border-radius:7px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:13px"><i class="ph ph-identification-card"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:12.5px">Паспорт РФ</div><div style="font-size:10.5px;color:var(--color-neutral-500)">документ · 6 полей</div></div>
+<button class="btn btn-icon btn-ghost" style="width:26px;height:26px"><i class="ph ph-copy" style="font-size:13px"></i></button>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;padding:9px 13px;border-top:1px solid var(--color-divider)">
+<button class="btn btn-ghost" style="font-size:12px;padding-inline:4px">Открыть приложение</button>
+<span style="margin-left:auto;font-size:10.5px;color:var(--color-neutral-600)">{{ hotkey }}</span>
+</div>
+</div>
+</div>
+<div style="height:34px;margin-top:22px;display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:0 30px;background:color-mix(in srgb,var(--color-neutral-900) 85%,transparent);border-top:1px solid var(--color-divider)">
+<i class="ph ph-wifi-high" style="font-size:14px;color:var(--color-neutral-500)"></i>
+<i class="ph ph-speaker-high" style="font-size:14px;color:var(--color-neutral-500)"></i>
+<i class="ph-fill ph-lock-simple-open" style="font-size:14px;color:var(--color-accent)"></i>
+<span style="font-size:11px;color:var(--color-neutral-500)">21:04</span>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Главный список — три панели: категории, записи, карточка</div>
+<div class="dv-card" style="width:1180px">
+<div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 70%,transparent)">
+<span style="font-size:11.5px;color:var(--color-neutral-500)">Сейф — хранилище Анны</span>
+<div style="margin-left:auto;display:flex;gap:14px;color:var(--color-neutral-500)"><i class="ph ph-minus" style="font-size:13px"></i><i class="ph ph-square" style="font-size:12px"></i><i class="ph ph-x" style="font-size:13px"></i></div>
+</div>
+<div style="display:flex;height:706px">
+<div style="width:222px;flex:none;border-right:1px solid var(--color-divider);display:flex;flex-direction:column;padding:14px 12px">
+<div style="display:flex;align-items:center;gap:8px;padding:0 4px 14px">
+<i class="ph-fill ph-vault" style="font-size:19px;color:var(--color-accent)"></i>
+<span style="font-size:16px;font-weight:500">Сейф</span>
+</div>
+<div style="display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid var(--color-divider);border-radius:8px;background:var(--color-surface);margin-bottom:14px">
+<i class="ph ph-magnifying-glass" style="font-size:14px;color:var(--color-neutral-600)"></i>
+<span style="font-size:12.5px;color:var(--color-neutral-600)">Поиск</span>
+<span style="margin-left:auto;font-size:10.5px;color:var(--color-neutral-700)">⌘K</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:1px">
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;background:color-mix(in srgb,var(--color-accent) 14%,transparent);box-shadow:inset 2px 0 0 var(--color-accent)"><i class="ph ph-squares-four" style="font-size:15px;color:var(--color-accent)"></i><span style="font-size:13px">Все записи</span><span style="margin-left:auto;font-size:11px;color:var(--color-neutral-500)">148</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-key" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Пароли</span><span style="margin-left:auto;font-size:11px;color:var(--color-neutral-600)">96</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-note" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Заметки</span><span style="margin-left:auto;font-size:11px;color:var(--color-neutral-600)">23</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-code" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Ключи API</span><span style="margin-left:auto;font-size:11px;color:var(--color-neutral-600)">18</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-identification-card" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Документы</span><span style="margin-left:auto;font-size:11px;color:var(--color-neutral-600)">11</span></div>
+</div>
+<div style="height:1px;margin:14px 0;background:linear-gradient(to right,transparent,var(--color-divider) 24px,var(--color-divider) calc(100% - 24px),transparent)"></div>
+<div style="display:flex;flex-direction:column;gap:1px">
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-star" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Избранное</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-shield-warning" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Аудит</span><span class="tag tag-accent" style="margin-left:auto">7</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-trash" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Корзина</span></div>
+</div>
+<div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:9px;border-radius:8px;border:1px solid var(--color-divider)">
+<i class="ph-fill ph-lock-simple-open" style="font-size:15px;color:var(--color-accent)"></i>
+<div style="flex:1;min-width:0"><div style="font-size:11.5px">Локально · AES-256</div><div style="font-size:10.5px;color:var(--color-neutral-600)">блокировка через 8 мин</div></div>
+<button class="btn btn-icon btn-ghost" style="width:26px;height:26px"><i class="ph ph-lock-key" style="font-size:14px"></i></button>
+</div>
+</div>
+
+<div style="width:328px;flex:none;border-right:1px solid var(--color-divider);display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:8px;padding:13px 14px 10px">
+<span style="font-size:13px;font-weight:500">Все записи</span>
+<span style="font-size:11.5px;color:var(--color-neutral-600)">148</span>
+<div style="margin-left:auto;display:flex;gap:2px">
+<button class="btn btn-icon btn-ghost" style="width:28px;height:28px"><i class="ph ph-sort-ascending" style="font-size:15px"></i></button>
+<button class="btn btn-icon btn-primary" style="width:28px;height:28px"><i class="ph ph-plus" style="font-size:15px"></i></button>
+</div>
+</div>
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:4px 14px 5px">Часто используемые</div>
+<div style="display:flex;align-items:center;gap:11px;padding:8px 14px;background:linear-gradient(90deg,color-mix(in srgb,var(--color-accent) 14%,transparent),transparent 85%);box-shadow:inset 2px 0 0 var(--color-accent)">
+<div style="width:30px;height:30px;flex:none;border-radius:8px;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:15px"><i class="ph ph-github-logo"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13.5px">GitHub</div><div style="font-size:11px;color:var(--color-neutral-500)">annakuz</div></div>
+<i class="ph-fill ph-star" style="font-size:12px;color:var(--color-accent)"></i>
+</div>
+<div style="display:flex;align-items:center;gap:11px;padding:8px 14px">
+<div style="width:30px;height:30px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:13px;font-family:ui-monospace,Menlo,monospace">N</div>
+<div style="flex:1;min-width:0"><div style="font-size:13.5px">Notion</div><div style="font-size:11px;color:var(--color-neutral-500)">anna.k@fastmail.com</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:11px;padding:8px 14px">
+<div style="width:30px;height:30px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:15px"><i class="ph ph-code"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13.5px">AWS · production</div><div style="font-size:11px;color:var(--color-neutral-500)">AKIA••••••••7Q2F</div></div>
+<span class="tag tag-neutral">ключ</span>
+</div>
+<div style="height:1px;margin:8px 0;background:linear-gradient(to right,transparent,var(--color-divider) 32px,var(--color-divider) calc(100% - 32px),transparent)"></div>
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:2px 14px 5px">А</div>
+<div style="display:flex;align-items:center;gap:11px;padding:8px 14px">
+<div style="width:30px;height:30px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:13px;font-family:ui-monospace,Menlo,monospace">А</div>
+<div style="flex:1;min-width:0"><div style="font-size:13.5px">Аэрофлот Бонус</div><div style="font-size:11px;color:var(--color-neutral-500)">•••• 4471</div></div>
+</div>
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:8px 14px 5px">Б</div>
+<div style="display:flex;align-items:center;gap:11px;padding:8px 14px">
+<div style="width:30px;height:30px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:15px"><i class="ph ph-bank"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13.5px">Банковские реквизиты</div><div style="font-size:11px;color:var(--color-neutral-500)">заметка</div></div>
+</div>
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:8px 14px 5px">Г</div>
+<div style="display:flex;align-items:center;gap:11px;padding:8px 14px">
+<div style="width:30px;height:30px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:15px"><i class="ph ph-google-logo"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13.5px">Google</div><div style="font-size:11px;color:var(--color-neutral-500)">anna.kuznetsova@gmail.com</div></div>
+<span class="tag tag-accent">слабый</span>
+</div>
+<div style="display:flex;align-items:center;gap:11px;padding:8px 14px">
+<div style="width:30px;height:30px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:15px"><i class="ph ph-identification-card"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13.5px">Паспорт РФ</div><div style="font-size:11px;color:var(--color-neutral-500)">документ</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:11px;padding:8px 14px;opacity:.55">
+<div style="width:30px;height:30px;flex:none;border-radius:8px;background:var(--color-neutral-800);color:var(--color-neutral-300);display:grid;place-items:center;font-size:15px"><i class="ph ph-figma-logo"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:13.5px">Figma</div><div style="font-size:11px;color:var(--color-neutral-500)">anna.k@fastmail.com</div></div>
+</div>
+</div>
+
+<div style="flex:1;min-width:0;display:flex;flex-direction:column">
+<div style="padding:20px 24px 0">
+<div style="display:flex;align-items:flex-start;gap:14px">
+<div style="width:48px;height:48px;flex:none;border-radius:12px;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:24px"><i class="ph ph-github-logo"></i></div>
+<div style="flex:1;min-width:0">
+<h3 style="margin:0 0 3px">GitHub</h3>
+<div style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--color-neutral-500)"><span>github.com</span><span>·</span><span>Пароли</span></div>
+</div>
+<div style="display:flex;gap:6px">
+<button class="btn btn-secondary"><i class="ph ph-star" style="font-size:15px"></i></button>
+<button class="btn btn-secondary"><i class="ph ph-pencil-simple" style="font-size:15px"></i>Изменить</button>
+<button class="btn btn-secondary btn-icon"><i class="ph ph-dots-three" style="font-size:16px"></i></button>
+</div>
+</div>
+<div style="display:flex;gap:6px;margin-top:12px"><span class="tag tag-neutral">работа</span><span class="tag tag-neutral">разработка</span><span class="tag tag-outline">2FA</span></div>
+<div style="display:flex;gap:8px;margin:16px 0 4px">
+<button class="btn btn-primary"><i class="ph ph-copy" style="font-size:15px"></i>Копировать пароль</button>
+<button class="btn btn-secondary"><i class="ph ph-arrow-square-out" style="font-size:15px"></i>Открыть сайт</button>
+<button class="btn btn-secondary"><i class="ph ph-keyboard" style="font-size:15px"></i>Автозаполнение</button>
+</div>
+</div>
+<div style="padding:14px 24px 0;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--color-divider);border-radius:8px">
+<div style="flex:1;min-width:0"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:2px">Логин</div><div style="font-size:14px;font-family:ui-monospace,Menlo,monospace">annakuz</div></div>
+<button class="btn btn-icon btn-ghost" style="width:30px;height:30px"><i class="ph ph-copy" style="font-size:16px"></i></button>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--color-divider);border-radius:8px">
+<div style="flex:1;min-width:0"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:2px">Пароль</div><div style="font-size:14px;font-family:ui-monospace,Menlo,monospace">{{ secret }}</div></div>
+<span style="font-size:11px;color:var(--color-neutral-500)">надёжный</span>
+<button class="btn btn-icon btn-ghost" style="width:30px;height:30px"><i class="ph ph-eye" style="font-size:16px"></i></button>
+<button class="btn btn-icon btn-ghost" style="width:30px;height:30px"><i class="ph ph-copy" style="font-size:16px"></i></button>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--color-divider);border-radius:8px">
+<div style="flex:1;min-width:0"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:2px">Код 2FA</div><div style="font-size:16px;font-family:ui-monospace,Menlo,monospace;letter-spacing:.16em">418 052</div></div>
+<svg width="24" height="24" viewBox="0 0 24 24" style="flex:none"><circle cx="12" cy="12" r="10" fill="none" stroke="#3f424d" stroke-width="2"></circle><circle cx="12" cy="12" r="10" fill="none" stroke="#9184d9" stroke-width="2" stroke-dasharray="62.8" stroke-dashoffset="26" stroke-linecap="round" transform="rotate(-90 12 12)"></circle></svg>
+<button class="btn btn-icon btn-ghost" style="width:30px;height:30px"><i class="ph ph-copy" style="font-size:16px"></i></button>
+</div>
+<div style="padding:10px 12px;border:1px solid var(--color-divider);border-radius:8px">
+<div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:3px">Заметка</div>
+<div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 78%,transparent)">Рабочий аккаунт. Коды восстановления — в записи «GitHub · коды восстановления».</div>
+</div>
+</div>
+<div style="margin-top:auto;display:flex;align-items:center;gap:14px;padding:12px 24px;border-top:1px solid var(--color-divider);font-size:11px;color:var(--color-neutral-600)">
+<span>Изменено 12 августа</span><span>·</span><span>Создано 3 марта 2024</span><span>·</span><span>Пароль обновлён 118 дней назад</span>
+<button class="btn btn-ghost" style="margin-left:auto;font-size:11.5px"><i class="ph ph-clock-counter-clockwise" style="font-size:14px"></i>История</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Главный список — плотная таблица со здоровьем паролей</div>
+<div class="dv-card" style="width:1180px">
+<div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 70%,transparent)">
+<span style="font-size:11.5px;color:var(--color-neutral-500)">Сейф</span>
+<div style="margin-left:auto;display:flex;gap:14px;color:var(--color-neutral-500)"><i class="ph ph-minus" style="font-size:13px"></i><i class="ph ph-square" style="font-size:12px"></i><i class="ph ph-x" style="font-size:13px"></i></div>
+</div>
+<div class="nav" style="padding:12px 20px;gap:20px">
+<span class="nav-brand" style="display:flex;align-items:center;gap:8px"><i class="ph-fill ph-vault" style="font-size:19px;color:var(--color-accent)"></i>Сейф</span>
+<a href="#1e" aria-current="page">Записи</a>
+<a href="#1e">Аудит</a>
+<a href="#1e">Генератор</a>
+<a href="#1e">Настройки</a>
+<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--color-divider);border-radius:8px;background:var(--color-surface);width:250px">
+<i class="ph ph-magnifying-glass" style="font-size:14px;color:var(--color-neutral-600)"></i>
+<span style="font-size:12.5px;color:var(--color-neutral-600)">Поиск</span>
+<span style="margin-left:auto;font-size:10.5px;color:var(--color-neutral-700)">⌘K</span>
+</div>
+<button class="btn btn-primary"><i class="ph ph-plus" style="font-size:15px"></i>Запись</button>
+</div>
+<div style="display:flex;height:672px">
+<div style="flex:1;min-width:0;padding:6px 20px 0;display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:7px;padding:6px 0 12px">
+<span class="tag tag-outline">Все · 148</span>
+<span class="tag tag-neutral">Пароли</span>
+<span class="tag tag-neutral">Заметки</span>
+<span class="tag tag-neutral">Ключи API</span>
+<span class="tag tag-neutral">Документы</span>
+<span style="margin-left:auto;font-size:11.5px;color:var(--color-neutral-600);display:flex;align-items:center;gap:6px"><i class="ph ph-sort-ascending" style="font-size:14px"></i>По изменению</span>
+</div>
+<table class="table">
+<thead><tr><th style="width:38%">Название</th><th>Логин</th><th style="width:110px">Тип</th><th style="width:130px">Надёжность</th><th style="width:110px">Изменено</th></tr></thead>
+<tbody>
+<tr style="background:color-mix(in srgb,var(--color-accent) 10%,transparent)"><td><span style="display:flex;align-items:center;gap:9px"><i class="ph ph-github-logo" style="font-size:16px;color:var(--color-accent)"></i>GitHub</span></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:13px">annakuz</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Пароль</span></td><td><span style="display:flex;align-items:center;gap:7px"><span style="width:44px;height:3px;border-radius:2px;background:linear-gradient(to right,var(--color-accent) 100%,var(--color-neutral-800) 0)"></span><span style="font-size:11.5px;color:var(--color-neutral-400)">высокая</span></span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">12 авг</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><i class="ph ph-google-logo" style="font-size:16px;color:var(--color-neutral-400)"></i>Google</span></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:13px">anna.kuznetsova@gmail.com</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Пароль</span></td><td><span style="display:flex;align-items:center;gap:7px"><span style="width:44px;height:3px;border-radius:2px;background:linear-gradient(to right,var(--color-accent-500) 35%,var(--color-neutral-800) 35%)"></span><span class="tag tag-accent">слабый</span></span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">4 авг</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><i class="ph ph-code" style="font-size:16px;color:var(--color-neutral-400)"></i>AWS · production</span></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:13px">AKIA••••••••7Q2F</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Ключ API</span></td><td><span style="font-size:11.5px;color:var(--color-neutral-500)">истекает 21 д.</span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">28 июл</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><i class="ph ph-note" style="font-size:16px;color:var(--color-neutral-400)"></i>Коды восстановления</span></td><td style="font-size:12.5px;color:var(--color-neutral-600)">—</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Заметка</span></td><td><span style="font-size:11.5px;color:var(--color-neutral-500)">—</span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">28 июл</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><i class="ph ph-identification-card" style="font-size:16px;color:var(--color-neutral-400)"></i>Паспорт РФ</span></td><td style="font-size:12.5px;color:var(--color-neutral-600)">45 08 •• ••••</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Документ</span></td><td><span style="font-size:11.5px;color:var(--color-neutral-500)">—</span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">19 июл</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><i class="ph ph-bank" style="font-size:16px;color:var(--color-neutral-400)"></i>Тинькофф</span></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:13px">+7 918 ••• 41 20</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Пароль</span></td><td><span style="display:flex;align-items:center;gap:7px"><span style="width:44px;height:3px;border-radius:2px;background:linear-gradient(to right,var(--color-accent) 100%,var(--color-neutral-800) 0)"></span><span style="font-size:11.5px;color:var(--color-neutral-400)">высокая</span></span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">8 июл</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><span style="width:16px;text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--color-neutral-400)">N</span>Notion</span></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:13px">anna.k@fastmail.com</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Пароль</span></td><td><span style="display:flex;align-items:center;gap:7px"><span style="width:44px;height:3px;border-radius:2px;background:linear-gradient(to right,var(--color-accent-500) 62%,var(--color-neutral-800) 62%)"></span><span class="tag tag-neutral">повтор</span></span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">2 июл</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><i class="ph ph-figma-logo" style="font-size:16px;color:var(--color-neutral-400)"></i>Figma</span></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:13px">anna.k@fastmail.com</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Пароль</span></td><td><span style="display:flex;align-items:center;gap:7px"><span style="width:44px;height:3px;border-radius:2px;background:linear-gradient(to right,var(--color-accent) 88%,var(--color-neutral-800) 88%)"></span><span style="font-size:11.5px;color:var(--color-neutral-400)">высокая</span></span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">30 июн</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><span style="width:16px;text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--color-neutral-400)">А</span>Аэрофлот Бонус</span></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:13px">•••• 4471</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Пароль</span></td><td><span style="display:flex;align-items:center;gap:7px"><span style="width:44px;height:3px;border-radius:2px;background:linear-gradient(to right,var(--color-accent-500) 48%,var(--color-neutral-800) 48%)"></span><span style="font-size:11.5px;color:var(--color-neutral-500)">средняя</span></span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">21 июн</td></tr>
+<tr><td><span style="display:flex;align-items:center;gap:9px"><i class="ph ph-code" style="font-size:16px;color:var(--color-neutral-400)"></i>OpenAI · sk-proj</span></td><td style="font-family:ui-monospace,Menlo,monospace;font-size:13px">sk-proj-••••••3Xm</td><td><span style="font-size:12.5px;color:var(--color-neutral-400)">Ключ API</span></td><td><span style="font-size:11.5px;color:var(--color-neutral-500)">бессрочный</span></td><td style="font-size:12.5px;color:var(--color-neutral-500)">14 июн</td></tr>
+</tbody>
+</table>
+<div style="margin-top:auto;display:flex;align-items:center;gap:14px;padding:12px 0;font-size:11.5px;color:var(--color-neutral-600)">
+<span>Выбрана 1 запись</span><span>·</span><span>⏎ копировать пароль</span><span>·</span><span>Пробел — предпросмотр</span>
+<span style="margin-left:auto">148 записей · последняя синхронизация не требуется</span>
+</div>
+</div>
+<div style="width:296px;flex:none;border-left:1px solid var(--color-divider);padding:18px 18px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;gap:11px">
+<div style="width:38px;height:38px;flex:none;border-radius:10px;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:19px"><i class="ph ph-github-logo"></i></div>
+<div style="min-width:0"><div style="font-size:15px;font-weight:500">GitHub</div><div style="font-size:11.5px;color:var(--color-neutral-500)">github.com</div></div>
+</div>
+<button class="btn btn-primary btn-block" style="margin:0"><i class="ph ph-copy" style="font-size:15px"></i>Копировать пароль</button>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="padding:8px 10px;border:1px solid var(--color-divider);border-radius:8px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600)">Логин</div><div style="font-size:13.5px;font-family:ui-monospace,Menlo,monospace">annakuz</div></div>
+<div style="padding:8px 10px;border:1px solid var(--color-divider);border-radius:8px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600)">Пароль</div><div style="font-size:13.5px;font-family:ui-monospace,Menlo,monospace">{{ secret }}</div></div>
+<div style="padding:8px 10px;border:1px solid var(--color-divider);border-radius:8px"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-600)">Код 2FA</div><div style="font-size:15px;font-family:ui-monospace,Menlo,monospace;letter-spacing:.16em">418 052</div></div>
+</div>
+<div style="height:1px;background:linear-gradient(to right,transparent,var(--color-divider) 24px,var(--color-divider) calc(100% - 24px),transparent)"></div>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:11.5px;color:var(--color-neutral-500)">
+<div style="display:flex;justify-content:space-between"><span>Папка</span><span style="color:var(--color-text)">Работа</span></div>
+<div style="display:flex;justify-content:space-between"><span>Изменено</span><span style="color:var(--color-text)">12 августа</span></div>
+<div style="display:flex;justify-content:space-between"><span>Пароль обновлён</span><span style="color:var(--color-text)">118 дней назад</span></div>
+</div>
+<div style="margin-top:auto;display:flex;gap:6px">
+<button class="btn btn-secondary" style="flex:1"><i class="ph ph-pencil-simple" style="font-size:15px"></i>Изменить</button>
+<button class="btn btn-secondary btn-icon"><i class="ph ph-dots-three" style="font-size:16px"></i></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Разблокировка — мастер-пароль</div>
+<div class="dv-card" style="width:460px">
+<div style="display:flex;align-items:center;height:32px;padding:0 12px;border-bottom:1px solid var(--color-divider)">
+<div style="margin-left:auto;display:flex;gap:14px;color:var(--color-neutral-600)"><i class="ph ph-minus" style="font-size:13px"></i><i class="ph ph-x" style="font-size:13px"></i></div>
+</div>
+<div style="padding:52px 42px 32px;display:flex;flex-direction:column;align-items:flex-start">
+<div style="width:56px;height:56px;border-radius:14px;border:1px solid var(--color-accent);display:grid;place-items:center;color:var(--color-accent);box-shadow:0 0 32px color-mix(in srgb,var(--color-accent) 22%,transparent)"><i class="ph ph-lock-key" style="font-size:27px"></i></div>
+<h2 style="margin:22px 0 4px">Сейф</h2>
+<div style="font-size:13px;color:var(--color-neutral-500);margin-bottom:26px">Хранилище Анны · 148 записей · локально</div>
+<div class="field" style="width:100%">
+<label for="mp">Мастер-пароль</label>
+<div style="position:relative">
+<input class="input" id="mp" type="password" value="············" style="padding-right:38px;font-family:ui-monospace,Menlo,monospace;letter-spacing:.18em" readonly="readonly">
+<i class="ph ph-eye" style="position:absolute;right:11px;top:9px;font-size:16px;color:var(--color-neutral-500)"></i>
+</div>
+</div>
+<button class="btn btn-primary btn-block" style="margin-top:14px;height:40px">Разблокировать</button>
+<button class="btn btn-secondary btn-block" style="margin-top:8px;height:40px"><i class="ph ph-fingerprint" style="font-size:17px"></i>Войти по отпечатку</button>
+<div style="height:1px;width:100%;margin:26px 0 14px;background:linear-gradient(to right,transparent,var(--color-divider) 40px,var(--color-divider) calc(100% - 40px),transparent)"></div>
+<div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--color-neutral-600)">
+<i class="ph ph-shield-check" style="font-size:15px;color:var(--color-accent)"></i>
+<span>AES-256 · ключ не покидает устройство</span>
+</div>
+<a href="#1f" style="font-size:11.5px;margin-top:9px;text-decoration:none">Забыли мастер-пароль? Восстановление по ключу</a>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>Карточка записи — режим редактирования</div>
+<div class="dv-card" style="width:900px">
+<div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 70%,transparent)">
+<span style="font-size:11.5px;color:var(--color-neutral-500)">Редактирование · GitHub</span>
+<div style="margin-left:auto;display:flex;gap:14px;color:var(--color-neutral-500)"><i class="ph ph-minus" style="font-size:13px"></i><i class="ph ph-x" style="font-size:13px"></i></div>
+</div>
+<div style="display:flex;height:600px">
+<div style="flex:1;min-width:0;padding:22px 24px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:44px;height:44px;flex:none;border-radius:11px;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:22px"><i class="ph ph-github-logo"></i></div>
+<div class="field" style="flex:1"><label for="t1n">Название</label><input class="input" id="t1n" value="GitHub" readonly="readonly"></div>
+</div>
+<div style="display:flex;gap:10px">
+<div class="field" style="flex:1"><label for="t1l">Логин</label><input class="input" id="t1l" value="annakuz" readonly="readonly"></div>
+<div class="field" style="flex:1"><label for="t1u">Адрес</label><input class="input" id="t1u" value="https://github.com/login" readonly="readonly"></div>
+</div>
+<div class="field">
+<label for="t1p">Пароль</label>
+<div style="display:flex;gap:8px">
+<input class="input" id="t1p" value="k7$Rm2-vQx9Lp!Zt" style="font-family:ui-monospace,Menlo,monospace;border-color:var(--color-accent)" readonly="readonly">
+<button class="btn btn-secondary btn-icon"><i class="ph ph-eye" style="font-size:16px"></i></button>
+<button class="btn btn-secondary btn-icon"><i class="ph ph-copy" style="font-size:16px"></i></button>
+<button class="btn btn-primary"><i class="ph ph-arrows-clockwise" style="font-size:15px"></i>Сгенерировать</button>
+</div>
+<div style="display:flex;align-items:center;gap:9px;margin-top:7px">
+<span style="flex:1;height:3px;border-radius:2px;background:linear-gradient(to right,var(--color-accent) 92%,var(--color-neutral-800) 92%)"></span>
+<span style="font-size:11px;color:var(--color-neutral-400)">96 бит энтропии · надёжный</span>
+</div>
+</div>
+<div class="field"><label for="t1o">Одноразовые коды (TOTP)</label><input class="input" id="t1o" value="otpauth://totp/GitHub:annakuz?secret=••••••••" style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px" readonly="readonly"></div>
+<div class="field"><label for="t1c">Заметка</label><textarea class="input" id="t1c" style="min-height:88px" readonly="readonly">Рабочий аккаунт. Коды восстановления — в записи «GitHub · коды восстановления».</textarea></div>
+<div>
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);margin-bottom:7px">Свои поля</div>
+<div style="display:flex;gap:10px;align-items:flex-end">
+<div class="field" style="flex:1"><label for="t1k">Ключ восстановления</label><input class="input" id="t1k" value="••••-••••-••••-••••" style="font-family:ui-monospace,Menlo,monospace" readonly="readonly"></div>
+<button class="btn btn-secondary"><i class="ph ph-plus" style="font-size:15px"></i>Поле</button>
+</div>
+</div>
+</div>
+<div style="width:280px;flex:none;border-left:1px solid var(--color-divider);padding:22px 18px;display:flex;flex-direction:column;gap:16px">
+<div class="field"><label for="t1f">Папка</label><input class="input" id="t1f" value="Работа" readonly="readonly"></div>
+<div>
+<div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 70%,transparent);margin-bottom:6px">Теги</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<span class="tag tag-neutral">работа</span><span class="tag tag-neutral">разработка</span>
+<span class="tag tag-outline" style="cursor:pointer">+ добавить</span>
+</div>
+</div>
+<div>
+<div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 70%,transparent);margin-bottom:6px">Быстрый доступ</div>
+<label class="radio" style="display:flex;gap:8px"><input type="checkbox" checked="checked"><span class="dot" style="border-radius:4px;box-shadow:inset 0 0 0 3px var(--color-bg);border-color:var(--color-accent);background:var(--color-accent)"></span>Показывать в мини-окне</label>
+</div>
+<div>
+<div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 70%,transparent);margin-bottom:6px">История пароля</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--color-divider);border-radius:8px"><span style="flex:1;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--color-neutral-400)">••••••••••••</span><span style="font-size:10.5px;color:var(--color-neutral-600)">апр 2025</span></div>
+<div style="display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--color-divider);border-radius:8px"><span style="flex:1;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--color-neutral-400)">••••••••••</span><span style="font-size:10.5px;color:var(--color-neutral-600)">мар 2024</span></div>
+</div>
+</div>
+<div style="margin-top:auto;font-size:11px;color:var(--color-neutral-600);line-height:1.5">Изменения шифруются локально и записываются в хранилище при сохранении.</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;padding:12px 20px;border-top:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 60%,transparent)">
+<i class="ph ph-circle-dashed" style="font-size:15px;color:var(--color-accent)"></i>
+<span style="font-size:12px;color:var(--color-neutral-400)">Есть несохранённые изменения</span>
+<div style="margin-left:auto;display:flex;gap:8px">
+<button class="btn btn-secondary">Отменить</button>
+<button class="btn btn-primary">Сохранить · ⌘S</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1h">
+<div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>Генератор паролей</div>
+<div class="dv-card" style="width:470px">
+<div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 70%,transparent)">
+<span style="font-size:11.5px;color:var(--color-neutral-500)">Генератор</span>
+<div style="margin-left:auto;display:flex;gap:14px;color:var(--color-neutral-500)"><i class="ph ph-minus" style="font-size:13px"></i><i class="ph ph-x" style="font-size:13px"></i></div>
+</div>
+<div style="padding:20px 20px 22px;display:flex;flex-direction:column;gap:16px">
+<div style="padding:16px 16px 14px;border:1px solid var(--color-accent);border-radius:10px;background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+<div style="font-family:ui-monospace,Menlo,monospace;font-size:20px;line-height:1.4;word-break:break-all;letter-spacing:.02em">k7$Rm2-vQx9Lp!Zt</div>
+<div style="display:flex;align-items:center;gap:9px;margin-top:12px">
+<span style="flex:1;height:3px;border-radius:2px;background:linear-gradient(to right,var(--color-accent) 92%,var(--color-neutral-800) 92%)"></span>
+<span style="font-size:11px;color:var(--color-neutral-400)">96 бит</span>
+<button class="btn btn-icon btn-ghost" style="width:28px;height:28px"><i class="ph ph-arrows-clockwise" style="font-size:16px"></i></button>
+<button class="btn btn-icon btn-primary" style="width:28px;height:28px"><i class="ph ph-copy" style="font-size:15px"></i></button>
+</div>
+</div>
+<div class="seg" style="width:100%">
+<label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="gen" checked="checked">Пароль</label>
+<label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="gen">Фраза</label>
+<label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="gen">PIN</label>
+</div>
+<div>
+<div style="display:flex;align-items:baseline;margin-bottom:8px"><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Длина</span><span style="margin-left:auto;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--color-accent)">16</span></div>
+<div style="position:relative;height:16px;display:flex;align-items:center">
+<span style="position:absolute;left:0;right:0;height:3px;border-radius:2px;background:var(--color-neutral-800)"></span>
+<span style="position:absolute;left:0;width:42%;height:3px;border-radius:2px;background:var(--color-accent)"></span>
+<span style="position:absolute;left:42%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--color-accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--color-accent) 18%,transparent)"></span>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--color-neutral-600);margin-top:4px"><span>8</span><span>64</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<label class="radio" style="display:flex;gap:9px"><input type="checkbox" checked="checked"><span class="dot" style="border-radius:4px;border-color:var(--color-accent);background:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)"></span>Прописные A–Z</label>
+<label class="radio" style="display:flex;gap:9px"><input type="checkbox" checked="checked"><span class="dot" style="border-radius:4px;border-color:var(--color-accent);background:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)"></span>Цифры 0–9</label>
+<label class="radio" style="display:flex;gap:9px"><input type="checkbox" checked="checked"><span class="dot" style="border-radius:4px;border-color:var(--color-accent);background:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)"></span>Символы !@#$</label>
+<label class="radio" style="display:flex;gap:9px"><input type="checkbox"><span class="dot" style="border-radius:4px"></span>Исключить похожие (0/O, 1/l)</label>
+</div>
+<div style="height:1px;background:linear-gradient(to right,transparent,var(--color-divider) 40px,var(--color-divider) calc(100% - 40px),transparent)"></div>
+<div style="display:flex;align-items:center;gap:8px">
+<button class="btn btn-ghost" style="font-size:12.5px"><i class="ph ph-clock-counter-clockwise" style="font-size:15px"></i>История (12)</button>
+<button class="btn btn-secondary" style="margin-left:auto">Заполнить поле</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1i">
+<div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>Настройки — безопасность и быстрый доступ</div>
+<div class="dv-card" style="width:900px">
+<div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 70%,transparent)">
+<span style="font-size:11.5px;color:var(--color-neutral-500)">Настройки</span>
+<div style="margin-left:auto;display:flex;gap:14px;color:var(--color-neutral-500)"><i class="ph ph-minus" style="font-size:13px"></i><i class="ph ph-x" style="font-size:13px"></i></div>
+</div>
+<div style="display:flex;height:596px">
+<div style="width:196px;flex:none;border-right:1px solid var(--color-divider);padding:16px 10px;display:flex;flex-direction:column;gap:1px">
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-sliders-horizontal" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Общие</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;background:color-mix(in srgb,var(--color-accent) 14%,transparent);box-shadow:inset 2px 0 0 var(--color-accent)"><i class="ph ph-shield-check" style="font-size:15px;color:var(--color-accent)"></i><span style="font-size:13px">Безопасность</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-lightning" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Быстрый доступ</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-arrows-clockwise" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Синхронизация</span></div>
+<div style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px"><i class="ph ph-archive" style="font-size:15px;color:var(--color-neutral-400)"></i><span style="font-size:13px">Резервные копии</span></div>
+<div style="margin-top:auto;padding:9px;font-size:10.5px;color:var(--color-neutral-700);line-height:1.5">Сейф 1.4 · формат хранилища v3</div>
+</div>
+<div style="flex:1;min-width:0;padding:24px 28px;display:flex;flex-direction:column;gap:0;overflow:hidden">
+<h4 style="margin:0 0 2px">Безопасность</h4>
+<p style="font-size:12.5px;color:var(--color-neutral-500);margin-bottom:18px">Хранилище шифруется на устройстве. Ключ выводится из мастер-пароля (Argon2id) и не хранится на диске.</p>
+
+<div style="display:flex;align-items:flex-start;gap:20px;padding:14px 0;border-top:1px solid var(--color-divider)">
+<div style="width:230px;flex:none"><div style="font-size:13.5px">Автоблокировка</div><div style="font-size:11.5px;color:var(--color-neutral-600)">При бездействии</div></div>
+<div class="seg">
+<label class="seg-opt"><input type="radio" name="lock">1 мин</label>
+<label class="seg-opt"><input type="radio" name="lock" checked="checked">10 мин</label>
+<label class="seg-opt"><input type="radio" name="lock">1 час</label>
+<label class="seg-opt"><input type="radio" name="lock">Никогда</label>
+</div>
+</div>
+
+<div style="display:flex;align-items:flex-start;gap:20px;padding:14px 0;border-top:1px solid var(--color-divider)">
+<div style="width:230px;flex:none"><div style="font-size:13.5px">Очистка буфера обмена</div><div style="font-size:11.5px;color:var(--color-neutral-600)">После копирования секрета</div></div>
+<div class="seg">
+<label class="seg-opt"><input type="radio" name="clip">10 с</label>
+<label class="seg-opt"><input type="radio" name="clip" checked="checked">30 с</label>
+<label class="seg-opt"><input type="radio" name="clip">90 с</label>
+<label class="seg-opt"><input type="radio" name="clip">Не чистить</label>
+</div>
+</div>
+
+<div style="display:flex;align-items:center;gap:20px;padding:14px 0;border-top:1px solid var(--color-divider)">
+<div style="width:230px;flex:none"><div style="font-size:13.5px">Горячая клавиша мини-окна</div><div style="font-size:11.5px;color:var(--color-neutral-600)">Работает поверх любых окон</div></div>
+<div style="display:flex;align-items:center;gap:10px">
+<div style="display:flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--color-accent);border-radius:8px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--color-accent)">{{ hotkey }}</div>
+<button class="btn btn-secondary">Изменить</button>
+</div>
+</div>
+
+<div style="display:flex;align-items:center;gap:20px;padding:14px 0;border-top:1px solid var(--color-divider)">
+<div style="width:230px;flex:none"><div style="font-size:13.5px">Вход по биометрии</div><div style="font-size:11.5px;color:var(--color-neutral-600)">Отпечаток или Windows Hello</div></div>
+<label class="radio" style="gap:9px"><input type="checkbox" checked="checked"><span class="dot" style="border-radius:4px;border-color:var(--color-accent);background:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)"></span><span style="font-size:13px">Включён</span></label>
+</div>
+
+<div style="display:flex;align-items:center;gap:20px;padding:14px 0;border-top:1px solid var(--color-divider)">
+<div style="width:230px;flex:none"><div style="font-size:13.5px">Скрывать секреты</div><div style="font-size:11.5px;color:var(--color-neutral-600)">Показывать только по запросу</div></div>
+<label class="radio" style="gap:9px"><input type="checkbox" checked="checked"><span class="dot" style="border-radius:4px;border-color:var(--color-accent);background:var(--color-accent);box-shadow:inset 0 0 0 3px var(--color-bg)"></span><span style="font-size:13px">Всегда</span></label>
+</div>
+
+<div style="display:flex;align-items:center;gap:20px;padding:14px 0;border-top:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider)">
+<div style="width:230px;flex:none"><div style="font-size:13.5px">Мастер-пароль</div><div style="font-size:11.5px;color:var(--color-neutral-600)">Изменён 4 месяца назад</div></div>
+<div style="display:flex;gap:8px"><button class="btn btn-secondary">Сменить</button><button class="btn btn-ghost">Ключ восстановления</button></div>
+</div>
+
+<div style="margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--color-surface);box-shadow:var(--shadow-sm)">
+<i class="ph ph-shield-warning" style="font-size:20px;color:var(--color-accent)"></i>
+<div style="flex:1"><div style="font-size:13px">Аудит: 7 записей требуют внимания</div><div style="font-size:11.5px;color:var(--color-neutral-500)">3 слабых пароля · 3 повтора · 1 утечка</div></div>
+<button class="btn btn-primary">Проверить</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Дальше можно: «оставь <a class="dv-oid" href="#1a">1a</a>, но с полями из <a class="dv-oid" href="#1b">1b</a>» · «сделай <a class="dv-oid" href="#1c">1c</a> шире и с категориями» · «покажи ещё варианты главного списка» · «собери из этого кликабельный прототип»</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;maskSecrets&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Содержимое&quot;},&quot;showKeyHints&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Содержимое&quot;},&quot;hotkey&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ctrl + Shift + Space&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Содержимое&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const masked = this.props.maskSecrets ?? true;
+    return {
+      secret: masked ? '••••••••••••••••' : 'k7$Rm2-vQx9Lp!Zt',
+      hotkey: this.props.hotkey ?? 'Ctrl + Shift + Space',
+      showKeyHints: this.props.showKeyHints ?? true,
+    };
+  }
+}
+</script>
+</body>
+</html>

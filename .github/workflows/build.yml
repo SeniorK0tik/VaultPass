@@ -1,0 +1,117 @@
+name: Сборка
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # Ядро не зависит ни от Tauri, ни от системных библиотек, поэтому проверяется
+  # первым и быстро — до того, как что-то начнёт линковаться.
+  core:
+    name: Проверки
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Версию компилятора задаёт rust-toolchain.toml; rustup доставит её сам
+      # вместе с rustfmt и clippy, перечисленными в том же файле.
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo test -p vault-core
+      - run: cargo clippy -p vault-core --all-targets -- -D warnings
+
+  linux:
+    name: Debian и Ubuntu (.deb, AppImage)
+    needs: core
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Системные библиотеки
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev libayatana-appindicator3-dev \
+            librsvg2-dev libxdo-dev libssl-dev \
+            build-essential curl wget file
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo test --workspace
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Собрать пакеты
+        run: |
+          cargo install tauri-cli --version '^2' --locked
+          cargo tauri build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: |
+            target/release/bundle/deb/*.deb
+            target/release/bundle/appimage/*.AppImage
+          if-no-files-found: error
+
+  windows:
+    name: Windows (.exe, .msi)
+    needs: core
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo test --workspace
+
+      - name: Установить tauri-cli
+        run: cargo install tauri-cli --version "^2" --locked
+
+      # NSIS собирается отдельно и первым: это установщик, который Tauri
+      # предлагает по умолчанию, и он не должен зависеть от капризов WiX.
+      - name: Собрать .exe (NSIS)
+        run: cargo tauri build --target x86_64-pc-windows-msvc --bundles nsis
+
+      # WiX запускает проверки установщика (ICE), которые падают по причинам,
+      # не связанным с приложением. Провал не должен рушить выпуск, но причину
+      # надо видеть — отсюда --verbose: сам Tauri вывод light.exe не печатает.
+      - name: Собрать .msi (WiX)
+        id: msi
+        continue-on-error: true
+        run: cargo tauri build --target x86_64-pc-windows-msvc --bundles msi --verbose
+
+      - name: Предупредить, если MSI не собрался
+        if: steps.msi.outcome == 'failure'
+        run: echo "::warning::MSI собрать не удалось — смотрите вывод шага «Собрать .msi». Установщик .exe готов."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+          if-no-files-found: error
+
+  # Черновик выпуска собирается из артефактов обеих платформ — публикуется
+  # вручную, чтобы можно было сначала проверить установщики.
+  release:
+    name: Черновик выпуска
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: Сейф ${{ github.ref_name }}
+          files: dist/**/*
+          fail_on_unmatched_files: true

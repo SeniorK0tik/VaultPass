@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Сейф
+Name[en]=Seif
+GenericName=Менеджер паролей
+GenericName[en]=Password Manager
+Comment=Локальное хранилище паролей, заметок, ключей API и документов
+Comment[en]=Local vault for passwords, notes, API keys and documents
+Exec={{exec}} {{exec_arg}}
+Icon={{icon}}
+Terminal=false
+Categories={{categories}}
+Keywords=пароль;сейф;хранилище;password;vault;keyring;
+StartupWMClass=Seif
+SingleMainWindow=true

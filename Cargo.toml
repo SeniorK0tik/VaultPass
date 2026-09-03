@@ -1,0 +1,28 @@
+[workspace]
+resolver = "2"
+members = ["crates/vault-core", "src-tauri"]
+
+[workspace.package]
+version = "1.4.0"
+edition = "2021"
+rust-version = "1.82"
+license = "MIT"
+authors = ["Сейф"]
+
+[workspace.dependencies]
+vault-core = { path = "crates/vault-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+zeroize = { version = "1.8", features = ["derive"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+getrandom = "0.3"
+base64 = "0.22"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

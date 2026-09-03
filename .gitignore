@@ -1,0 +1,15 @@
+# Сборка
+/target
+/src-tauri/target
+/src-tauri/gen
+
+# Хранилища и их копии: файл сейфа зашифрован, но в репозитории ему не место
+*.vault
+*.vault.tmp
+/backups
+
+# Локальное окружение
+node_modules
+.idea/
+.vscode/
+.DS_Store
