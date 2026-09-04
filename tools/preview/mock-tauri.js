@@ -41,7 +41,7 @@
     vault_path: '/home/anna/.local/share/seif/seif.vault',
     autolock_secs: 600, clipboard_clear_secs: 30,
     hotkey: 'CmdOrCtrl+Shift+Space', biometrics: false, mask_secrets: true,
-    show_key_hints: true,
+    show_key_hints: true, tray_pinned: false,
     main_view: P.get('view') === 'table' ? 'table' : 'panels',
     quick_view: P.get('quick') || 'fields',
     launch_at_startup: false,
@@ -98,11 +98,8 @@
       getCurrentWindow: () => ({
         label: P.get('label') || 'main',
         hide: async () => {}, show: async () => {}, setFocus: async () => {},
-        minimize: async () => {}, innerSize: async () => ({ width: 330, height: 372 }),
-        setPosition: async () => {},
+        minimize: async () => {}, startDragging: async () => {},
       }),
-      currentMonitor: async () => null,
-      LogicalPosition: function (x, y) { this.x = x; this.y = y; },
     },
   };
 })();

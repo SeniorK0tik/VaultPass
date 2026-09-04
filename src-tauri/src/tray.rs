@@ -71,6 +71,19 @@ fn on_menu<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
 }
 
 fn on_icon<R: Runtime>(tray: &tauri::tray::TrayIcon<R>, event: TrayIconEvent) {
+    // Прямоугольник значка приходит с любым событием мыши, и запоминается он
+    // при каждом удобном случае: мини-окно вызывают и горячей клавишей, без
+    // щелчка по трею, а появиться оно должно всё равно рядом со значком.
+    // На Linux сюда не приходит ничего: GTK о трее не рассказывает.
+    match &event {
+        TrayIconEvent::Click { rect, .. }
+        | TrayIconEvent::DoubleClick { rect, .. }
+        | TrayIconEvent::Enter { rect, .. }
+        | TrayIconEvent::Move { rect, .. }
+        | TrayIconEvent::Leave { rect, .. } => windows::remember_tray_icon(*rect),
+        _ => {}
+    }
+
     if let TrayIconEvent::Click {
         button: MouseButton::Left,
         button_state: MouseButtonState::Up,

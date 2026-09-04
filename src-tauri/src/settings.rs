@@ -51,6 +51,9 @@ pub struct Settings {
     pub mask_secrets: bool,
     /// Показывать нижнюю строку подсказок в быстром окне.
     pub show_key_hints: bool,
+    /// Булавка мини-окна у трея: закреплённое окно не прячется, когда
+    /// пользователь щёлкает мимо, и остаётся поверх остальных.
+    pub tray_pinned: bool,
 
     pub main_view: MainView,
     pub quick_view: QuickView,
@@ -69,6 +72,7 @@ impl Default for Settings {
             biometrics: false,
             mask_secrets: true,
             show_key_hints: true,
+            tray_pinned: false,
             main_view: MainView::Panels,
             quick_view: QuickView::Fields,
             launch_at_startup: false,

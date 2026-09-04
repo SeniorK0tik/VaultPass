@@ -1,10 +1,17 @@
 // Экран 1c — мини-окно у значка в трее.
 //
 // Самый короткий путь к паролю: список недавних записей, копирование одним
-// щелчком. Окно без рамки, поверх остальных, исчезает при потере фокуса.
+// щелчком. Окно без рамки, поверх остальных, исчезает при потере фокуса —
+// пока не закреплено булавкой.
+//
+// Где окну появиться, решает Rust (`windows::place_tray`): двигать окна по
+// экрану — не дело вебвью, и разрешения на это у интерфейса нет. Отсюда окно
+// можно только перетащить за полосу заголовка, и это единственный способ,
+// который работает под Wayland: там положение окна назначает композитор.
 
 import {
-  call, listen, currentWindow, recent, getSettings, status, copyField, lockCountdown,
+  call, listen, currentWindow, recent, getSettings, setSettings, status, copyField,
+  lockCountdown,
 } from './api.js';
 import { h, icon, $, clear, entryIcon, fmtCountdown, mount } from './ui.js';
 import { toast, toastCopied, guard, trackActivity } from './chrome.js';
@@ -15,27 +22,41 @@ let countdownTimer = null;
 const refs = {};
 
 /**
- * Ставит окно в нижний правый угол экрана — туда, где обычно живёт трей.
+ * Делает полосу заголовка ручкой: за неё окно таскают по экрану.
  *
- * Точных координат значка ни Windows, ни Linux переносимо не отдают, поэтому
- * угол берётся по рабочей области монитора с отступом. Это совпадает с
- * расположением в макете и не зависит от того, где именно оказался значок.
+ * Штатный `data-tauri-drag-region` срабатывает только на самом элементе с
+ * атрибутом — щелчок по значку или подписи внутри полосы окно уже не двигает,
+ * а полоса из них почти целиком и состоит. Поэтому перетаскивание запускается
+ * вручную, с любого её места, кроме кнопок.
  */
-async function anchorToCorner() {
-  const { currentMonitor, LogicalPosition } = window.__TAURI__.window;
-  const win = currentWindow();
-  const monitor = await currentMonitor();
-  if (!monitor) return;
+function draggable(node) {
+  node.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || e.target.closest('button')) return;
+    currentWindow().startDragging().catch(() => {});
+  });
+  return node;
+}
 
-  const scale = monitor.scaleFactor || 1;
-  const size = await win.innerSize();
-  const margin = 12;
+/** Закрепляет окно на экране или отпускает его. */
+async function togglePin() {
+  const saved = await guard(() => setSettings({ ...settings, tray_pinned: !settings.tray_pinned }));
+  if (!saved) return;
+  settings = saved;
+  drawPin();
+  toast(settings.tray_pinned
+    ? 'Окно закреплено — останется на экране'
+    : 'Окно откреплено — спрячется при щелчке мимо', { glyph: 'push-pin' });
+}
 
-  const x = monitor.position.x / scale + monitor.size.width / scale - size.width / scale - margin;
-  // 46 px — запас под панель задач: снизу почти всегда что-то есть.
-  const y = monitor.position.y / scale + monitor.size.height / scale - size.height / scale - margin - 46;
-
-  await win.setPosition(new LogicalPosition(Math.round(x), Math.round(y)));
+/** Вид булавки: залитая и подсвеченная — закреплено. */
+function drawPin() {
+  const on = Boolean(settings?.tray_pinned);
+  refs.pin.title = on
+    ? 'Открепить: окно будет прятаться, как раньше'
+    : 'Закрепить: окно останется поверх остальных';
+  refs.pin.classList.toggle('btn-primary', on);
+  refs.pin.classList.toggle('btn-ghost', !on);
+  mount(clear(refs.pin), icon('push-pin', { size: 14, fill: on }));
 }
 
 // ── разметка ───────────────────────────────────────────────────────────────
@@ -43,19 +64,25 @@ async function anchorToCorner() {
 function build() {
   refs.lockLabel = h('span', { style: 'font-size:11px;color:var(--color-neutral-500)' });
 
-  const header = h('div', {
-    style: 'display:flex;align-items:center;gap:8px;padding:11px 13px;flex:none;' +
+  refs.pin = h('button', {
+    class: 'btn btn-icon btn-ghost', style: 'width:24px;height:24px;margin-left:auto',
+    type: 'button', onClick: togglePin,
+  });
+  drawPin();
+
+  const header = draggable(h('div', {
+    style: 'display:flex;align-items:center;gap:8px;padding:11px 13px;flex:none;cursor:grab;' +
            'border-bottom:1px solid var(--color-divider)',
-    'data-tauri-drag-region': '',
   },
     icon('lock-simple-open', { fill: true, size: 15, color: 'var(--color-accent)' }),
     h('span', { style: 'font-size:13px;font-weight:500' }, 'Сейф'),
     refs.lockLabel,
+    refs.pin,
     h('button', {
-      class: 'btn btn-icon btn-ghost', style: 'width:24px;height:24px;margin-left:auto',
+      class: 'btn btn-icon btn-ghost', style: 'width:24px;height:24px',
       type: 'button', title: 'Заблокировать',
       onClick: () => guard(async () => { await call('lock_vault'); await currentWindow().hide(); }),
-    }, icon('lock-key', { size: 14 })));
+    }, icon('lock-key', { size: 14 }))));
 
   refs.searchLabel = h('span', { style: 'font-size:12.5px;color:var(--color-neutral-600)' }, 'Поиск');
 
@@ -133,8 +160,9 @@ async function copy(entry) {
   const secs = await guard(() => copyField(entry.id, field));
   if (secs === undefined) return;
   toastCopied(entry.has_password ? 'Пароль' : 'Логин', secs);
-  // Окно уходит сразу: оно открывалось ради одного действия.
-  setTimeout(() => currentWindow().hide(), 700);
+  // Окно уходит сразу: оно открывалось ради одного действия. Закреплённое
+  // остаётся — его для того и закрепляли.
+  if (!settings?.tray_pinned) setTimeout(() => currentWindow().hide(), 700);
 }
 
 /** Строка «разблокирован · 12 мин» — сколько осталось до автоблокировки. */
@@ -149,6 +177,7 @@ async function tickCountdown() {
 
 async function load() {
   settings = await getSettings();
+  drawPin();
   refs.hotkey.textContent = (settings.hotkey || '')
     .replace(/CmdOrCtrl/gi, 'Ctrl').split('+').map((s) => s.trim()).join(' + ');
 
@@ -177,13 +206,13 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') currentWindow().hide();
 });
 
-listen('quick-opened', async () => { await anchorToCorner(); await load(); });
+listen('quick-opened', () => load());
 listen('entries-changed', () => load());
 listen('vault-locked', () => currentWindow().hide());
 
 build();
 trackActivity();
-anchorToCorner().then(load);
+load();
 // Обратный отсчёт до блокировки идёт раз в 15 секунд: чаще незачем,
 // подпись всё равно округляется до минут.
 countdownTimer = setInterval(tickCountdown, 15_000);

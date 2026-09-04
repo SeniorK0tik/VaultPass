@@ -152,10 +152,25 @@ pub fn run() {
                 }
                 // Быстрое окно исчезает, как только теряет фокус, —
                 // так ведут себя палитры команд, и так задумано в макете.
+                // Мини-окно у трея — тоже, но только пока не закреплено
+                // булавкой: закрепляют его как раз затем, чтобы оно
+                // оставалось на экране рядом с рабочим окном.
                 WindowEvent::Focused(false) => {
                     let label = window.label();
-                    if label == windows::QUICK || label == windows::TRAY {
+                    let pinned = window
+                        .app_handle()
+                        .state::<Arc<AppState>>()
+                        .settings()
+                        .tray_pinned;
+                    if label == windows::QUICK || (label == windows::TRAY && !pinned) {
                         let _ = window.hide();
+                    }
+                }
+                // Куда пользователь перетащил мини-окно, там оно и должно
+                // открываться в следующий раз.
+                WindowEvent::Moved(pos) => {
+                    if window.label() == windows::TRAY && window.is_visible().unwrap_or(false) {
+                        windows::remember_tray_spot(*pos);
                     }
                 }
                 _ => {}
