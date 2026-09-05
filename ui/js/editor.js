@@ -57,6 +57,30 @@ function field(label, control, { flex } = {}) {
 
 // ── левая колонка ──────────────────────────────────────────────────────────
 
+/** Логин, почта и адрес. Почта есть только у паролей: заметке или
+    документу она ни к чему, а три поля в одном ряду не помещаются по ширине,
+    поэтому у пароля адрес уезжает на свою строку. */
+function renderIdentityFields() {
+  const login = field('Логин', bound('username', { autocomplete: 'off' }), { flex: '1' });
+  const url = bound('url', { placeholder: 'https://', autocomplete: 'off' });
+
+  if (draft.kind !== 'password') {
+    return h('div', { style: 'display:flex;gap:10px' },
+      login,
+      field('Адрес', url, { flex: '1' }));
+  }
+
+  return h('div', { style: 'display:flex;flex-direction:column;gap:12px' },
+    h('div', { style: 'display:flex;gap:10px' },
+      login,
+      field('Почта', bound('email', {
+        type: 'email',
+        placeholder: 'anna@example.com',
+        autocomplete: 'off',
+      }), { flex: '1' })),
+    field('Адрес', url));
+}
+
 function renderPasswordBlock() {
   refs.password = h('input', {
     class: 'input mono',
@@ -188,7 +212,14 @@ function renderSidebar() {
   },
     field('Тип записи', h('select', {
       class: 'input',
-      onChange: (e) => { draft.kind = e.target.value; markDirty(); },
+      onChange: (e) => {
+        draft.kind = e.target.value;
+        // Уходя с пароля, почту не прячем, а забываем: сохранение всё равно
+        // её не примет, и оставить невидимое значение значило бы соврать
+        // про «всё сохранено».
+        if (draft.kind !== 'password') draft.email = '';
+        redraw();
+      },
     }, KINDS.map((k) => h('option', { value: k.value, selected: draft.kind === k.value }, k.label)))),
 
     field('Папка', folderSelect),
@@ -312,6 +343,12 @@ async function open(id) {
     guard(() => tags(), { silent: true }).then((v) => v || []),
   ]);
 
+  redraw();
+}
+
+/** Полная перерисовка: `render` пересоздаёт узлы, поэтому измеритель
+    надёжности и история пароля наполняются заново. */
+function redraw() {
   render();
   refreshStrength();
   fillHistory();
@@ -335,9 +372,7 @@ function render() {
       }, icon(draft.id ? 'vault' : 'plus')),
       field('Название', refs.title, { flex: '1' })),
 
-    h('div', { style: 'display:flex;gap:10px' },
-      field('Логин', bound('username', { autocomplete: 'off' }), { flex: '1' }),
-      field('Адрес', bound('url', { placeholder: 'https://', autocomplete: 'off' }), { flex: '1' })),
+    renderIdentityFields(),
 
     renderPasswordBlock(),
 

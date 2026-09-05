@@ -177,6 +177,11 @@ function drawFields() {
       onCopy: () => copy(entry.id, 'username', 'Логин'),
     }));
   }
+  if (entry.email) {
+    mount(list, fieldBox('Почта', entry.email, {
+      onCopy: () => copy(entry.id, 'email', 'Почта'),
+    }));
+  }
   if (entry.has_password) {
     mount(list, fieldBox('Пароль', '••••••••••••••••', {
       accent: true, hint: '⏎',

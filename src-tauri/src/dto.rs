@@ -45,6 +45,7 @@ pub struct EntryView {
     pub title: String,
     pub subtitle: String,
     pub username: String,
+    pub email: String,
     pub url: String,
     pub host: String,
     pub note: String,
@@ -91,6 +92,7 @@ impl EntryView {
             title: e.title.clone(),
             subtitle: e.subtitle(),
             username: e.username.clone(),
+            email: e.email.clone(),
             url: e.url.clone(),
             host: vault_core::model::host_of(&e.url),
             note: e.note.clone(),
@@ -155,6 +157,7 @@ impl EntryView {
 #[serde(rename_all = "snake_case")]
 pub enum Field {
     Username,
+    Email,
     Password,
     Url,
     Note,
@@ -171,6 +174,8 @@ pub struct EntryDraft {
     pub title: String,
     #[serde(default)]
     pub username: String,
+    #[serde(default)]
+    pub email: String,
     #[serde(default)]
     pub password: String,
     #[serde(default)]
@@ -236,6 +241,7 @@ impl EntryDraft {
             kind: e.kind,
             title: e.title.clone(),
             username: e.username.clone(),
+            email: e.email.clone(),
             password: e.password.clone(),
             url: e.url.clone(),
             note: e.note.clone(),
@@ -266,6 +272,14 @@ impl EntryDraft {
             e.id = id;
         }
         e.username = std::mem::take(&mut self.username);
+        // Почта — принадлежность паролей: у остальных типов форма её не
+        // показывает, и оставлять невидимое значение (которое всё равно
+        // найдёт поиск) было бы хуже, чем не сохранить его вовсе.
+        e.email = if self.kind == EntryKind::Password {
+            std::mem::take(&mut self.email).trim().to_string()
+        } else {
+            String::new()
+        };
         e.password = std::mem::take(&mut self.password);
         e.url = std::mem::take(&mut self.url);
         e.note = std::mem::take(&mut self.note);
@@ -361,6 +375,18 @@ mod tests {
         assert_eq!(d.id, None);
         assert!(d.quick_access);
         assert!(d.title.is_empty());
+    }
+
+    #[test]
+    fn draft_keeps_the_email_of_a_password_and_drops_it_elsewhere() {
+        let mut d = EntryDraft::blank(EntryKind::Password);
+        d.email = "  anna.k@fastmail.com  ".into();
+        assert_eq!(d.clone().into_entry().email, "anna.k@fastmail.com");
+
+        // Форма показывает почту только у паролей: при другом типе значение
+        // не должно тихо остаться в записи.
+        d.kind = EntryKind::Note;
+        assert!(d.into_entry().email.is_empty());
     }
 
     #[test]

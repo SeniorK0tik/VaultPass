@@ -448,6 +448,7 @@ fn field_value(v: &Vault, id: Uuid, field: Field) -> vault_core::Result<String> 
     let e = v.get(id)?;
     Ok(match field {
         Field::Username => e.username.clone(),
+        Field::Email => e.email.clone(),
         Field::Password => e.password.clone(),
         Field::Url => e.url.clone(),
         Field::Note => e.note.clone(),
@@ -536,11 +537,18 @@ pub async fn autofill_entry<Rt: Runtime>(
 ) -> R<()> {
     // Заимствование состояния держится в блоке: за точкой await оно жило бы
     // через всю паузу на печать, а нужно оно только чтобы прочитать два поля.
-    let (username, password) = {
+    let (login, password) = {
         let state = app.state::<Arc<AppState>>();
         state.with_vault(|v| {
             let e = v.get(id)?;
-            Ok((e.username.clone(), e.password.clone()))
+            // Логин печатается тот, что есть: у части записей вместо него
+            // заведена почта, и печатать в форму пустую строку бессмысленно.
+            let login = if e.username.is_empty() {
+                e.email.clone()
+            } else {
+                e.username.clone()
+            };
+            Ok((login, e.password.clone()))
         })?
     };
 
@@ -549,7 +557,7 @@ pub async fn autofill_entry<Rt: Runtime>(
 
     let submit = submit.unwrap_or(false);
     let result = tauri::async_runtime::spawn_blocking(move || {
-        autofill::type_credentials(&username, &password, submit)
+        autofill::type_credentials(&login, &password, submit)
     })
     .await
     .map_err(|e| CmdError::new("autofill", e.to_string()))?;

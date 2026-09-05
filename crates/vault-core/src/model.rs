@@ -105,6 +105,10 @@ pub struct Entry {
 
     #[serde(default)]
     pub username: String,
+    /// Почта учётной записи. Секретом не считается: её видно в списках,
+    /// по ней ищут — как по логину.
+    #[serde(default)]
+    pub email: String,
     #[serde(default)]
     pub password: String,
     #[serde(default)]
@@ -164,6 +168,7 @@ impl Entry {
             kind,
             title: title.into(),
             username: String::new(),
+            email: String::new(),
             password: String::new(),
             url: String::new(),
             note: String::new(),
@@ -207,6 +212,9 @@ impl Entry {
         if !self.username.is_empty() {
             return self.username.clone();
         }
+        if self.kind == EntryKind::Password && !self.email.is_empty() {
+            return self.email.clone();
+        }
         match self.kind {
             EntryKind::Password => host_of(&self.url),
             EntryKind::Note => "заметка".into(),
@@ -246,6 +254,7 @@ impl Entry {
         let hay = [
             self.title.as_str(),
             self.username.as_str(),
+            self.email.as_str(),
             self.url.as_str(),
             self.note.as_str(),
         ];
@@ -277,6 +286,7 @@ impl Entry {
         } else if title.contains(needle_lower) {
             2
         } else if self.username.to_lowercase().contains(needle_lower)
+            || self.email.to_lowercase().contains(needle_lower)
             || self.url.to_lowercase().contains(needle_lower)
         {
             3
@@ -389,6 +399,26 @@ mod tests {
         let mut b = Entry::new(EntryKind::Password, "Мой GitHub");
         b.usage_count = 99;
         assert!(a.match_rank("gith") < b.match_rank("gith"));
+    }
+
+    #[test]
+    fn search_finds_an_entry_by_its_email() {
+        let mut e = Entry::new(EntryKind::Password, "Notion");
+        e.email = "anna.k@fastmail.com".into();
+        assert!(e.matches("fastmail"));
+        assert!(!e.matches("gmail"));
+    }
+
+    #[test]
+    fn subtitle_falls_back_to_email_when_there_is_no_login() {
+        let mut e = Entry::new(EntryKind::Password, "Notion");
+        e.email = "anna.k@fastmail.com".into();
+        e.url = "https://notion.so".into();
+        assert_eq!(e.subtitle(), "anna.k@fastmail.com");
+
+        // Логин, если он есть, остаётся главным: почта — только замена.
+        e.username = "annakuz".into();
+        assert_eq!(e.subtitle(), "annakuz");
     }
 
     #[test]

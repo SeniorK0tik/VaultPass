@@ -385,6 +385,11 @@ function detailColumn() {
       onCopy: () => copy(entry.id, 'username', 'Логин'),
     }));
   }
+  if (entry.email) {
+    mount(fields, fieldBox('Почта', entry.email, {
+      onCopy: () => copy(entry.id, 'email', 'Почта'),
+    }));
+  }
   if (entry.has_password) {
     mount(fields, fieldBox('Пароль', state.revealed ? state.revealedValue : entry.password_masked, {
       extra: entry.strength
@@ -680,6 +685,7 @@ function tableAside() {
 
     h('div', { style: 'display:flex;flex-direction:column;gap:7px' },
       entry.username ? compactField('Логин', entry.username, () => copy(entry.id, 'username', 'Логин')) : null,
+      entry.email ? compactField('Почта', entry.email, () => copy(entry.id, 'email', 'Почта')) : null,
       entry.has_password ? compactField('Пароль', entry.password_masked, () => copy(entry.id, 'password', 'Пароль')) : null,
       entry.has_totp ? compactField('Код 2FA', 'появится позже', null) : null),
 

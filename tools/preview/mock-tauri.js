@@ -11,7 +11,7 @@
     id: o.id, kind: o.kind || 'password', kind_title: {
       password: 'Пароли', note: 'Заметки', api_key: 'Ключи API', document: 'Документы',
     }[o.kind || 'password'],
-    title: o.title, subtitle: o.sub || '', username: o.username || '',
+    title: o.title, subtitle: o.sub || '', username: o.username || '', email: o.email || '',
     url: o.url || '', host: o.host || '', note: o.note || '', icon: o.icon || 'key',
     tags: o.tags || [], folder: o.folder || null, favorite: !!o.fav,
     quick_access: true, has_password: o.pw !== false, has_totp: !!o.totp,
@@ -25,7 +25,7 @@
   });
 
   const ENTRIES = [
-    mk({ id: '1', title: 'GitHub', username: 'annakuz', url: 'https://github.com/login', host: 'github.com', icon: 'github-logo', tags: ['работа', 'разработка'], fav: true, totp: true, used: 42, mod: 22, note: 'Рабочий аккаунт. Коды восстановления — в записи «GitHub · коды восстановления».', history: [{ masked: '••••••••••••', replaced_at: iso(500) }, { masked: '••••••••••', replaced_at: iso(880) }] }),
+    mk({ id: '1', title: 'GitHub', username: 'annakuz', email: 'anna.k@fastmail.com', url: 'https://github.com/login', host: 'github.com', icon: 'github-logo', tags: ['работа', 'разработка'], fav: true, totp: true, used: 42, mod: 22, note: 'Рабочий аккаунт. Коды восстановления — в записи «GitHub · коды восстановления».', history: [{ masked: '••••••••••••', replaced_at: iso(500) }, { masked: '••••••••••', replaced_at: iso(880) }] }),
     mk({ id: '2', title: 'Notion', username: 'anna.k@fastmail.com', url: 'notion.so', host: 'notion.so', icon: 'notion-logo', used: 31, mod: 63, bits: 74, label: 'хороший' }),
     mk({ id: '3', title: 'AWS · production', username: 'AKIA••••••••7Q2F', kind: 'api_key', icon: 'code', used: 18, mod: 37, exp: true, pw: false }),
     mk({ id: '4', title: 'Аэрофлот Бонус', username: '•••• 4471', icon: 'airplane-tilt', mod: 74, bits: 57, label: 'средняя' }),
@@ -33,7 +33,7 @@
     mk({ id: '6', title: 'Google', username: 'anna.kuznetsova@gmail.com', url: 'google.com', host: 'google.com', icon: 'google-logo', mod: 30, bits: 42, label: 'слабый' }),
     mk({ id: '7', title: 'Паспорт РФ', username: '45 08 •• ••••', kind: 'document', icon: 'identification-card', mod: 46, pw: false }),
     mk({ id: '8', title: 'Figma', username: 'anna.k@fastmail.com', url: 'figma.com', host: 'figma.com', icon: 'figma-logo', mod: 65, bits: 88 }),
-    mk({ id: '9', title: 'Тинькофф', username: '+7 918 ••• 41 20', icon: 'bank', mod: 57, totp: true }),
+    mk({ id: '9', title: 'Тинькофф', username: '+7 918 ••• 41 20', email: 'anna.kuznetsova@gmail.com', icon: 'bank', mod: 57, totp: true }),
     mk({ id: '10', title: 'OpenAI · sk-proj', username: 'sk-proj-••••••3Xm', kind: 'api_key', icon: 'code', mod: 81, pw: false }),
   ];
 
@@ -72,6 +72,7 @@
     }),
     load_draft: (a) => ({
       id: a.id || '1', kind: 'password', title: 'GitHub', username: 'annakuz',
+      email: 'anna.k@fastmail.com',
       password: 'k7$Rm2-vQx9Lp!Zt', url: 'https://github.com/login',
       note: 'Рабочий аккаунт. Коды восстановления — в записи «GitHub · коды восстановления».',
       totp: 'otpauth://totp/GitHub:annakuz?secret=••••••••',
