@@ -21,7 +21,11 @@ let draft = null;
 let saved = null;      // снимок для сравнения «есть ли несохранённое»
 let allFolders = [];
 let allTags = [];
+let tagsExpanded = false;   // подсказки развёрнуты целиком
 const refs = {};
+
+// Сколько подсказок помещается в колонку, не превращая её в стену тегов.
+const TAG_SUGGEST_LIMIT = 8;
 
 const snapshot = () => JSON.stringify(draft);
 const isDirty = () => snapshot() !== saved;
@@ -202,6 +206,12 @@ function renderSidebar() {
     allFolders.map((f) => h('option', { value: f.id, selected: draft.folder === f.id }, f.name)));
 
   refs.tagRow = h('div', { class: 'tagrow' });
+  refs.tagSuggest = h('div', { class: 'tagrow tagrow-suggest' });
+  refs.tagInput = h('input', {
+    class: 'input input-tag', type: 'text', placeholder: 'Новый тег',
+    onInput: drawSuggestions,
+    onKeyDown: onTagKey,
+  });
   drawTags();
 
   refs.history = h('div', { style: 'display:flex;flex-direction:column;gap:6px' });
@@ -226,7 +236,7 @@ function renderSidebar() {
 
     h('div', {},
       h('div', { style: 'font-size:12px;color:color-mix(in srgb,var(--color-text) 70%,transparent);margin-bottom:6px' }, 'Теги'),
-      refs.tagRow),
+      refs.tagRow, refs.tagSuggest, refs.tagInput),
 
     h('div', {},
       h('div', { style: 'font-size:12px;color:color-mix(in srgb,var(--color-text) 70%,transparent);margin-bottom:6px' }, 'Быстрый доступ'),
@@ -254,7 +264,7 @@ function renderSidebar() {
 }
 
 function drawTags() {
-  mount(clear(refs.tagRow), 
+  mount(clear(refs.tagRow),
     draft.tags.map((t) => h('button', {
       class: 'tag tag-neutral is-button', type: 'button', title: 'Убрать тег',
       onClick: () => {
@@ -263,23 +273,60 @@ function drawTags() {
         drawTags();
       },
     }, t)),
-    h('button', {
-      class: 'tag tag-outline is-button', type: 'button', onClick: addTag,
-    }, '+ добавить'));
+    draft.tags.length ? null : h('span', { class: 'dim', style: 'font-size:11.5px' }, 'Пока ни одного'));
+  drawSuggestions();
 }
 
-function addTag() {
-  const suggestions = allTags.map(([name]) => name).filter((n) => !draft.tags.includes(n));
-  const name = prompt(
-    suggestions.length
-      ? `Тег\n\nУже используются: ${suggestions.slice(0, 12).join(', ')}`
-      : 'Тег',
-    '');
-  const clean = (name || '').trim();
+/**
+ * Подсказки — теги, уже встречающиеся в хранилище: частые впереди, выбранные
+ * скрыты. Набранное в поле сужает список, поэтому одно и то же поле служит
+ * и поиском по своим тегам, и вводом нового.
+ */
+function drawSuggestions() {
+  const query = refs.tagInput.value.trim().toLowerCase();
+  const rest = allTags
+    .filter(([name]) => !draft.tags.includes(name) && name.toLowerCase().includes(query))
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ru'))
+    .map(([name]) => name);
+  // Прятать один-единственный тег за кнопкой «ещё» — обмен клика на клик.
+  const cut = tagsExpanded || rest.length <= TAG_SUGGEST_LIMIT + 1
+    ? rest.length : TAG_SUGGEST_LIMIT;
+
+  mount(clear(refs.tagSuggest),
+    rest.slice(0, cut).map((name) => h('button', {
+      class: 'tag tag-outline is-button', type: 'button', title: 'Добавить тег',
+      onClick: () => pickTag(name),
+    }, name)),
+    cut < rest.length ? h('button', {
+      class: 'tag tag-more is-button', type: 'button',
+      onClick: () => { tagsExpanded = true; drawSuggestions(); },
+    }, `ещё ${rest.length - cut}`) : null);
+}
+
+function pickTag(name) {
+  const clean = name.trim();
   if (!clean || draft.tags.includes(clean)) return;
   draft.tags.push(clean);
+  // Придуманный здесь тег сразу попадает в подсказки: сняв его по ошибке,
+  // пользователь не должен набирать то же слово заново.
+  if (!allTags.some(([n]) => n === clean)) allTags.push([clean, 0]);
+  refs.tagInput.value = '';
   markDirty();
   drawTags();
+}
+
+function onTagKey(e) {
+  if (e.key === 'Escape' && refs.tagInput.value) {
+    // Esc над непустым полем чистит набранное, а не закрывает карточку.
+    e.stopPropagation();
+    e.preventDefault();
+    refs.tagInput.value = '';
+    drawSuggestions();
+    return;
+  }
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  pickTag(refs.tagInput.value);
 }
 
 /** История паролей приходит из ядра только точками и датой — сами прежние
@@ -335,6 +382,7 @@ async function open(id) {
   draft = await loadDraft(id ?? null);
   draft.custom ||= [];
   draft.tags ||= [];
+  tagsExpanded = false;
   if (id === null || id === undefined) draft.quick_access = true;
   saved = snapshot();
 

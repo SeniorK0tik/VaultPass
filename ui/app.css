@@ -217,6 +217,14 @@ button { font: inherit; }
 .tagrow { display: flex; flex-wrap: wrap; gap: 6px; }
 .tag.is-button { cursor: pointer; border: 0; font: inherit; font-size: 11px; }
 
+/* Подсказки в карточке: тусклее выбранных тегов, чтобы ряды не путались
+   между собой. Пустой ряд не должен занимать отступ. */
+.tagrow-suggest { margin-top: 8px; opacity: 0.7; }
+.tagrow-suggest:hover { opacity: 1; }
+.tagrow-suggest:empty { display: none; }
+.tag.tag-more { background: transparent; color: var(--color-neutral-600); }
+.input-tag { margin-top: 8px; min-height: 30px; font-size: 12.5px; }
+
 /* Поле поиска, встроенное в чужую рамку: своей рамки и своего кольца фокуса
    у него быть не должно — рамку рисует контейнер вокруг. */
 .input-bare {
