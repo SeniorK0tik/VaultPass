@@ -6,14 +6,16 @@
 
 import {
   call, getSettings, setSettings, status, auditReport, openWindow,
-  logInfo, logTail, openLogDir,
+  logInfo, logTail, openLogDir, seedStatus, seedPickFile, seedForget,
 } from './api.js';
 import { h, icon, $, clear, fmtBytes, fmtDate, mount } from './ui.js';
 import { setupAuxWindow, toast, guard } from './chrome.js';
+import { seedChangePasswordDialog } from './seed.js';
 
 const SECTIONS = [
   { id: 'general',  label: 'Общие',            glyph: 'sliders-horizontal', render: renderGeneral },
   { id: 'security', label: 'Безопасность',     glyph: 'shield-check',       render: renderSecurity },
+  { id: 'seed',     label: 'Сид-фразы',        glyph: 'seal',               render: renderSeed },
   { id: 'quick',    label: 'Быстрый доступ',   glyph: 'lightning',          render: renderQuick },
   { id: 'sync',     label: 'Синхронизация',    glyph: 'arrows-clockwise',   render: renderSync },
   { id: 'backups',  label: 'Резервные копии',  glyph: 'archive',            render: renderBackups },
@@ -22,6 +24,7 @@ const SECTIONS = [
 
 let settings = null;
 let vaultStatus = null;
+let seedInfo = null;
 let current = 'security'; // раздел, открытый в макете
 const refs = {};
 
@@ -158,6 +161,96 @@ function renderSecurity() {
 
     refs.auditBanner = h('div', { style: 'margin-top:auto' }),
   ];
+}
+
+/**
+ * Раздел сид-фраз. Здесь только то, что можно менять при закрытом хранилище:
+ * какой файл подключён, как быстро раздел закрывается и что спрашивать перед
+ * показом фразы. Сами записи живут в главном окне и только там.
+ */
+function renderSeed() {
+  const lock = [
+    { value: 60, label: '1 мин' },
+    { value: 120, label: '2 мин' },
+    { value: 300, label: '5 мин' },
+  ];
+  const hide = [
+    { value: 15, label: '15 с' },
+    { value: 30, label: '30 с' },
+    { value: 60, label: '60 с' },
+  ];
+
+  const connected = seedInfo?.configured;
+
+  return [
+    h('h4', {}, 'Сид-фразы'),
+    h('p', { style: 'font-size:12.5px;color:var(--color-neutral-500);margin-bottom:18px' },
+      'Фразы восстановления кошельков хранятся в отдельном файле со своим ' +
+      'мастер-паролем и своим ключом. Argon2id для него вчетверо дороже, чем ' +
+      'у основного сейфа, а ключа восстановления нет намеренно.'),
+
+    setting('Файл хранилища', connected ? 'Подключён' : 'Не подключён', [
+      h('div', {
+        class: 'mono selectable',
+        style: 'font-size:12px;color:var(--color-neutral-400);word-break:break-all;max-width:340px',
+      }, seedInfo?.path || '—'),
+      h('button', {
+        class: 'btn btn-secondary', type: 'button',
+        onClick: () => pickSeedFile(connected ? 'open' : 'create'),
+      }, connected ? 'Выбрать другой' : 'Создать…'),
+      connected ? h('button', {
+        class: 'btn btn-ghost', type: 'button', onClick: forgetSeedFile,
+      }, 'Отключить') : h('button', {
+        class: 'btn btn-ghost', type: 'button', onClick: () => pickSeedFile('open'),
+      }, 'Подключить существующий…'),
+    ]),
+
+    setting('Автоблокировка раздела', 'Свои часы, короче общих',
+      seg('seedlock', lock, settings.seed_autolock_secs,
+        (v) => patch({ seed_autolock_secs: v }))),
+
+    setting('Пароль перед показом', 'Подтверждать каждый показ фразы',
+      check(settings.seed_require_password_on_reveal ? 'Спрашивать' : 'Не спрашивать',
+        settings.seed_require_password_on_reveal,
+        (v) => patch({ seed_require_password_on_reveal: v }))),
+
+    setting('Фраза скрывается через', 'После показа на экране',
+      seg('seedhide', hide, settings.seed_hide_after_secs,
+        (v) => patch({ seed_hide_after_secs: v }))),
+
+    connected ? setting('Мастер-пароль хранилища', 'Отдельный от пароля сейфа',
+      h('button', {
+        class: 'btn btn-secondary', type: 'button', onClick: seedChangePasswordDialog,
+      }, 'Сменить')) : null,
+
+    h('div', {
+      style: 'margin-top:18px;padding:12px 14px;border-radius:10px;background:var(--color-surface);' +
+             'display:flex;gap:12px;align-items:flex-start',
+    },
+      icon('info', { size: 18, color: 'var(--color-neutral-400)' }),
+      h('div', { style: 'font-size:11.5px;line-height:1.6;color:var(--color-neutral-500)' },
+        'Скопировать сид-фразу нельзя: команды копирования для этого раздела ' +
+        'не существует. От снимка экрана и от фотографии монитора приложение ' +
+        'защитить не может — переписывайте фразу на бумагу и держите её ' +
+        'подальше от компьютера.')),
+  ];
+}
+
+async function pickSeedFile(mode) {
+  const picked = await guard(() => seedPickFile(mode));
+  if (!picked) return;
+  seedInfo = await guard(() => seedStatus(), { silent: true });
+  render();
+  toast(mode === 'create'
+    ? 'Файл выбран — задайте мастер-пароль в разделе «Сид-фразы» главного окна'
+    : 'Файл подключён', { glyph: 'seal', ms: 4200 });
+}
+
+async function forgetSeedFile() {
+  if (!confirm('Отключить файл с сид-фразами?\n\nСам файл останется на диске.')) return;
+  await guard(() => seedForget());
+  seedInfo = await guard(() => seedStatus(), { silent: true });
+  render();
 }
 
 function renderQuick() {
@@ -494,6 +587,7 @@ async function build() {
   const root = setupAuxWindow('Настройки', { buttons: ['min', 'close'] });
   settings = await getSettings();
   vaultStatus = await status();
+  seedInfo = await guard(() => seedStatus(), { silent: true });
 
   refs.nav = h('div', { style: 'display:flex;flex-direction:column;gap:1px' });
   refs.body = h('div', {

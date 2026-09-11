@@ -233,3 +233,50 @@ button { font: inherit; }
 .input-bare:focus-visible { outline: none; border-color: transparent; }
 
 .hidden { display: none !important; }
+
+/* ─── раздел сид-фраз ──────────────────────────────────────────────────────
+   Сетка слов служит двум экранам сразу: показу (готовые слова под размытием)
+   и вводу (поля). Отсюда два состояния — .is-veiled и .is-input. */
+.seed-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  margin-top: 12px;
+}
+.seed-grid.is-single { grid-template-columns: 1fr; }
+
+.seed-word {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--color-divider); background: var(--color-surface);
+  font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px;
+}
+.seed-num {
+  min-width: 16px; font-size: 10.5px; text-align: right;
+  color: var(--color-neutral-600); font-family: var(--font-sans, inherit);
+}
+.seed-text { color: var(--color-text); overflow: hidden; text-overflow: ellipsis; }
+
+/* Размытие, а не подстановка точек: так видно, что слова на месте, но
+   прочитать их можно только сознательным действием. Переход короткий —
+   отпустил кнопку, и фраза исчезла сразу. */
+.seed-grid.is-veiled .seed-text {
+  filter: blur(7px);
+  transition: filter 0.08s ease;
+}
+.seed-grid .seed-text { transition: filter 0.12s ease; }
+
+/* Ввод фразы: номер слева, поле без своей рамки внутри общей ячейки. */
+.seed-grid.is-input { grid-template-columns: repeat(4, 1fr); }
+.seed-cell {
+  display: flex; align-items: center; gap: 7px;
+  padding: 4px 8px; border-radius: 8px;
+  border: 1px solid var(--color-divider); background: var(--color-surface);
+}
+.seed-cell:focus-within { border-color: var(--color-accent); }
+.seed-input {
+  border: 0; background: transparent; padding: 2px 0; min-height: 0;
+  font-size: 12.5px; letter-spacing: .06em; width: 100%;
+}
+.seed-input:focus-visible { outline: none; }
+/* Слово, которого нет в списке BIP39. Не запрет, а подсказка: сохранить
+   такую фразу всё равно не дадут — проверка идёт в ядре. */
+.seed-input.is-bad { color: #e0808f; }

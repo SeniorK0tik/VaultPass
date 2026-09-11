@@ -37,7 +37,7 @@ impl CmdError {
     ///
     /// В сообщение не попадает содержимое сейфа: тексты ошибок ядра его
     /// не несут, а значений полей здесь нет вовсе.
-    fn new(code: &str, message: impl Into<String>) -> Self {
+    pub(crate) fn new(code: &str, message: impl Into<String>) -> Self {
         let message = message.into();
         // `locked` — не поломка, а обычное состояние: интерфейс спрашивает
         // данные у закрытого сейфа при каждой автоблокировке.
@@ -791,6 +791,9 @@ pub fn close_window<Rt: Runtime>(app: AppHandle<Rt>, label: String) -> R<()> {
     if let Some(w) = app.get_webview_window(&label) {
         let _ = w.hide();
     }
+    if label == windows::MAIN {
+        crate::lock_seed_section(&app);
+    }
     Ok(())
 }
 
@@ -798,6 +801,9 @@ pub fn close_window<Rt: Runtime>(app: AppHandle<Rt>, label: String) -> R<()> {
 pub fn minimize_window<Rt: Runtime>(app: AppHandle<Rt>, label: String) -> R<()> {
     if let Some(w) = app.get_webview_window(&label) {
         w.minimize()?;
+    }
+    if label == windows::MAIN {
+        crate::lock_seed_section(&app);
     }
     Ok(())
 }

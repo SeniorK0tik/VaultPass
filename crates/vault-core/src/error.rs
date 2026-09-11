@@ -12,6 +12,12 @@ pub enum Error {
     #[error("версия формата {0} не поддерживается (нужна 3)")]
     UnsupportedFormat(u32),
 
+    #[error("файл не похож на хранилище сид-фраз «Сейф»")]
+    NotASeedVault,
+
+    #[error("версия формата хранилища сид-фраз {0} не поддерживается (нужна 1)")]
+    UnsupportedSeedFormat(u32),
+
     #[error("неверный мастер-пароль")]
     BadMasterPassword,
 
@@ -32,6 +38,23 @@ pub enum Error {
 
     #[error("папка {0} не найдена")]
     NoSuchFolder(uuid::Uuid),
+
+    #[error("сид-фраза {0} не найдена")]
+    NoSuchSeedEntry(uuid::Uuid),
+
+    #[error("в сид-фразе {0} слов: их бывает 12, 15, 18, 21 или 24")]
+    BadWordCount(usize),
+
+    // Слово, которого нет в списке, называется только номером: сообщение
+    // уходит и в интерфейс, и в журнал, а слово сид-фразы — секрет.
+    #[error("слово №{0} не из списка BIP39")]
+    UnknownWord(usize),
+
+    #[error("фраза не сходится по контрольной сумме — проверьте порядок и написание слов")]
+    BadChecksum,
+
+    #[error("хранилище сид-фраз заблокировано")]
+    SeedLocked,
 
     #[error("мастер-пароль слишком короткий: нужно не меньше {0} символов")]
     WeakMasterPassword(usize),
@@ -64,6 +87,13 @@ impl Error {
             Error::Locked => "locked",
             Error::NoSuchEntry(_) => "no_such_entry",
             Error::NoSuchFolder(_) => "no_such_folder",
+            Error::NotASeedVault => "not_a_seed_vault",
+            Error::UnsupportedSeedFormat(_) => "unsupported_seed_format",
+            Error::NoSuchSeedEntry(_) => "no_such_seed_entry",
+            Error::BadWordCount(_) => "bad_word_count",
+            Error::UnknownWord(_) => "unknown_word",
+            Error::BadChecksum => "bad_checksum",
+            Error::SeedLocked => "seed_locked",
             Error::WeakMasterPassword(_) => "weak_master_password",
             Error::Io(_) => "io",
             Error::Serde(_) => "serde",

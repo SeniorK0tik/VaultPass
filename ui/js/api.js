@@ -114,3 +114,37 @@ export const lockCountdown = () => call('lock_countdown');
 export const logInfo = () => call('log_info');
 export const logTail = (lines) => call('log_tail', { lines });
 export const openLogDir = () => call('open_log_dir');
+
+// ── раздел сид-фраз ─────────────────────────────────────────────────────────
+//
+// Команды, которая копировала бы сид-фразу, здесь нет намеренно: в ядре её
+// тоже не существует. Наверх фраза приходит одной `seedReveal`, и живёт в
+// разметке считанные секунды.
+
+export const seedStatus = () => call('seed_status');
+export const seedPickFile = (mode) => call('seed_pick_file', { mode });
+export const seedForget = () => call('seed_forget');
+export const seedCreate = (masterPassword) => call('seed_create', { masterPassword });
+export const seedUnlock = (masterPassword) => call('seed_unlock', { masterPassword });
+export const seedLock = () => call('seed_lock');
+export const seedChangePassword = (current, next) =>
+  call('seed_change_password', { current, new: next });
+export const seedPing = () => call('seed_ping');
+export const seedCountdown = () => call('seed_countdown');
+
+export const seedList = () => call('seed_list');
+export const seedGet = (id) => call('seed_get', { id });
+export const seedAdd = (draft) => call('seed_add', { draft });
+export const seedUpdateDetails = (id, details) => call('seed_update_details', { id, details });
+export const seedReplacePhrase = (id, words, passphrase, standard) =>
+  call('seed_replace_phrase', { id, words, passphrase, standard });
+export const seedDelete = (id, confirmTitle) => call('seed_delete', { id, confirmTitle });
+
+export const seedReveal = (id, masterPassword) => call('seed_reveal', { id, masterPassword });
+export const seedRevealPassphrase = (id, masterPassword) =>
+  call('seed_reveal_passphrase', { id, masterPassword });
+export const seedVerifyPhrase = (id, words) => call('seed_verify_phrase', { id, words });
+export const seedClearClipboard = () => call('seed_clear_clipboard');
+
+export const bip39Suggest = (prefix, limit) => call('bip39_suggest', { prefix, limit });
+export const bip39Check = (words) => call('bip39_check', { words });

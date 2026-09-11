@@ -9,12 +9,15 @@
 #![forbid(unsafe_code)]
 
 pub mod audit;
+pub mod bip39;
 pub mod crypto;
 pub mod error;
 pub mod generator;
 pub mod model;
+pub mod seed;
 pub mod vault;
 
 pub use error::{Error, Result};
 pub use model::{CustomField, Entry, EntryKind, Folder, PasswordHistoryItem};
+pub use seed::{SeedEntry, SeedVault, SEED_FORMAT_VERSION};
 pub use vault::{Counts, Vault, FORMAT_VERSION};

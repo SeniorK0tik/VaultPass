@@ -37,6 +37,13 @@ pub struct Settings {
     /// Путь к файлу хранилища. `None` — путь по умолчанию.
     pub vault_path: Option<PathBuf>,
 
+    /// Путь к файлу с сид-фразами. `None` — раздел ещё не подключён.
+    ///
+    /// Здесь только путь: сам файл лежит где угодно, хоть на съёмном носителе,
+    /// и умолчания у него нет намеренно — выбрать место должен пользователь,
+    /// а не программа рядом с основным сейфом.
+    pub seed_vault_path: Option<PathBuf>,
+
     /// Автоблокировка при бездействии, секунды. `None` — «Никогда».
     pub autolock_secs: Option<u64>,
     /// Очистка буфера обмена после копирования, секунды. `None` — «Не чистить».
@@ -55,6 +62,14 @@ pub struct Settings {
     /// пользователь щёлкает мимо, и остаётся поверх остальных.
     pub tray_pinned: bool,
 
+    /// Автоблокировка раздела сид-фраз, секунды. Варианта «никогда» нет:
+    /// открытый раздел с сид-фразами не должен переживать уход от стола.
+    pub seed_autolock_secs: u64,
+    /// Спрашивать мастер-пароль сид-волта при каждом показе фразы.
+    pub seed_require_password_on_reveal: bool,
+    /// Через сколько секунд показанная фраза исчезает с экрана сама.
+    pub seed_hide_after_secs: u64,
+
     pub main_view: MainView,
     pub quick_view: QuickView,
     pub launch_at_startup: bool,
@@ -66,6 +81,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             vault_path: None,
+            seed_vault_path: None,
             autolock_secs: Some(600),
             clipboard_clear_secs: Some(30),
             hotkey: "CmdOrCtrl+Shift+Space".into(),
@@ -73,6 +89,9 @@ impl Default for Settings {
             mask_secrets: true,
             show_key_hints: true,
             tray_pinned: false,
+            seed_autolock_secs: 120,
+            seed_require_password_on_reveal: true,
+            seed_hide_after_secs: 30,
             main_view: MainView::Panels,
             quick_view: QuickView::Fields,
             launch_at_startup: false,
@@ -101,6 +120,11 @@ impl Settings {
         self.vault_path
             .clone()
             .unwrap_or_else(Self::default_vault_path)
+    }
+
+    /// Подключён ли раздел сид-фраз к какому-нибудь файлу.
+    pub fn seed_configured(&self) -> bool {
+        self.seed_vault_path.is_some()
     }
 
     pub fn backup_dir(&self) -> PathBuf {
@@ -147,6 +171,14 @@ impl Settings {
         if self.hotkey.trim().is_empty() {
             self.hotkey = Self::default().hotkey;
         }
+
+        const SEED_LOCK_CHOICES: [u64; 3] = [60, 120, 300];
+        if !SEED_LOCK_CHOICES.contains(&self.seed_autolock_secs) {
+            // Верхняя граница жёсткая: «на весь день» для раздела с
+            // сид-фразами — это не настройка, а отключённая защита.
+            self.seed_autolock_secs = self.seed_autolock_secs.clamp(15, 900);
+        }
+        self.seed_hide_after_secs = self.seed_hide_after_secs.clamp(5, 120);
     }
 }
 
@@ -186,6 +218,26 @@ mod tests {
         s.sanitize();
         assert_eq!(s.autolock_secs, None);
         assert_eq!(s.clipboard_clear_secs, None);
+    }
+
+    #[test]
+    fn the_seed_section_starts_unconfigured_and_locks_quickly() {
+        let s = Settings::default();
+        assert!(!s.seed_configured());
+        assert_eq!(s.seed_autolock_secs, 120);
+        assert!(s.seed_require_password_on_reveal);
+    }
+
+    #[test]
+    fn seed_autolock_cannot_be_stretched_to_a_whole_day() {
+        let mut s = Settings {
+            seed_autolock_secs: 86_400,
+            seed_hide_after_secs: 9_999,
+            ..Default::default()
+        };
+        s.sanitize();
+        assert_eq!(s.seed_autolock_secs, 900);
+        assert_eq!(s.seed_hide_after_secs, 120);
     }
 
     #[test]

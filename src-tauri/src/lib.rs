@@ -15,6 +15,8 @@ pub mod commands;
 pub mod dto;
 pub mod hotkey;
 pub mod logging;
+pub mod seed_commands;
+pub mod seed_dto;
 pub mod settings;
 pub mod state;
 pub mod tray;
@@ -39,6 +41,7 @@ pub fn run() {
     let mut builder = tauri::Builder::default()
         .plugin(logging::plugin())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build());
 
@@ -114,6 +117,27 @@ pub fn run() {
             commands::open_log_dir,
             commands::log_tail,
             commands::log_ui,
+            seed_commands::seed_status,
+            seed_commands::seed_pick_file,
+            seed_commands::seed_forget,
+            seed_commands::seed_create,
+            seed_commands::seed_unlock,
+            seed_commands::seed_lock,
+            seed_commands::seed_change_password,
+            seed_commands::seed_ping,
+            seed_commands::seed_countdown,
+            seed_commands::seed_list,
+            seed_commands::seed_get,
+            seed_commands::seed_add,
+            seed_commands::seed_update_details,
+            seed_commands::seed_replace_phrase,
+            seed_commands::seed_delete,
+            seed_commands::seed_reveal,
+            seed_commands::seed_reveal_passphrase,
+            seed_commands::seed_verify_phrase,
+            seed_commands::seed_clear_clipboard,
+            seed_commands::bip39_suggest,
+            seed_commands::bip39_check,
         ])
         .setup(move |app| {
             let handle = app.handle().clone();
@@ -149,6 +173,11 @@ pub fn run() {
                 WindowEvent::CloseRequested { api, .. } => {
                     api.prevent_close();
                     let _ = window.hide();
+                    // Спрятанное главное окно — это уход от стола: раздел
+                    // сид-фраз переживать его не должен.
+                    if window.label() == windows::MAIN {
+                        lock_seed_section(window.app_handle());
+                    }
                 }
                 // Быстрое окно исчезает, как только теряет фокус, —
                 // так ведут себя палитры команд, и так задумано в макете.
@@ -195,12 +224,31 @@ fn spawn_idle_guard<R: Runtime>(app: AppHandle<R>) {
     std::thread::spawn(move || loop {
         std::thread::sleep(IDLE_TICK);
         let state = app.state::<Arc<AppState>>();
+
+        // Раздел сид-фраз закрывается раньше и по своим часам: работа с
+        // паролями в соседнем окне его не продлевает.
+        if state.should_autolock_seed() && state.lock_seed() {
+            log::info!("раздел сид-фраз закрыт по бездействию");
+            let _ = app.emit("seed-locked", "autolock");
+        }
+
         if state.should_autolock() && state.lock_vault() {
             log::info!("сейф закрыт по бездействию");
             windows::hide_all_but_main(&app);
             let _ = app.emit("vault-locked", "autolock");
         }
     });
+}
+
+/// Закрывает раздел сид-фраз и сообщает об этом окнам.
+///
+/// Вызывается отовсюду, где пользователь перестал смотреть на главное окно:
+/// закрыл его, свернул или заблокировал сейф.
+pub fn lock_seed_section<R: Runtime>(app: &AppHandle<R>) {
+    if app.state::<Arc<AppState>>().lock_seed() {
+        log::info!("раздел сид-фраз закрыт вместе с главным окном");
+        let _ = app.emit("seed-locked", ());
+    }
 }
 
 /// Включает или выключает автозапуск при входе в систему.

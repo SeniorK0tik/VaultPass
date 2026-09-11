@@ -11,6 +11,7 @@ import {
   fmtDate, fmtDateShort, fmtAgo, fmtDays, fmtCountdown, plural, mount } from './ui.js';
 import { titlebar, toast, toastCopied, guard, trackActivity } from './chrome.js';
 import { renderUnlock } from './unlock.js';
+import { seedSection, leaveSeedSection } from './seed.js';
 
 const KINDS = [
   { kind: 'password', label: 'Пароли',     glyph: 'key',                 key: 'passwords' },
@@ -31,6 +32,7 @@ const state = {
   detail: null,
   revealed: false,   // показан ли пароль выбранной записи
   audit: null,       // непусто — открыт раздел «Аудит»
+  seed: false,       // открыт раздел «Сид-фразы»
 };
 
 const refs = {};
@@ -107,6 +109,7 @@ async function refresh() {
 // ═══ выбор вида ════════════════════════════════════════════════════════════
 
 function renderApp() {
+  if (state.seed) return renderSeed();
   if (state.audit) return renderAudit();
   if (state.settings.main_view === 'table') return renderTable();
   return renderPanels();
@@ -118,7 +121,7 @@ function sidebar() {
   const c = state.counts;
   const item = (glyph, label, count, scope, extra) => h('button', {
     class: 'side-item', type: 'button',
-    'aria-current': !state.audit && sameScope(scope, state.scope) ? 'true' : null,
+    'aria-current': !state.audit && !state.seed && sameScope(scope, state.scope) ? 'true' : null,
     onClick: () => pick(scope),
   }, icon(glyph), h('span', {}, label),
      extra || (count !== null && count !== undefined
@@ -151,6 +154,15 @@ function sidebar() {
         onClick: showAudit,
       }, icon('shield-warning'), h('span', {}, 'Аудит'), refs.auditCount = h('span', { class: 'count' })),
       item('trash', 'Корзина', c?.trash || null, { type: 'trash' }),
+
+      h('div', { class: 'rule', style: 'margin:14px 0' }),
+
+      // Сид-фразы живут в отдельном файле со своим мастер-паролем, поэтому
+      // это не ещё один тип записей, а отдельный раздел рядом с аудитом.
+      h('button', {
+        class: 'side-item', type: 'button', 'aria-current': state.seed ? 'true' : null,
+        onClick: showSeed,
+      }, icon('seal'), h('span', {}, 'Сид-фразы')),
 
       state.folders.length ? h('div', { class: 'rule', style: 'margin:14px 0' }) : null,
       state.folders.length ? h('div', { class: 'kicker', style: 'padding:0 9px 6px' }, 'Папки') : null,
@@ -199,10 +211,31 @@ const sameScope = (a, b) =>
   a.type === b.type && (a.kind ?? null) === (b.kind ?? null) && (a.id ?? null) === (b.id ?? null);
 
 async function pick(scope) {
+  leaveSeed();
   state.scope = scope;
   state.audit = null;
   state.selectedId = null;
   await refresh();
+}
+
+/// Раздел сид-фраз закрывается, как только с него уходят: открытым он живёт
+/// только пока на него смотрят.
+function leaveSeed() {
+  if (!state.seed) return;
+  state.seed = false;
+  leaveSeedSection();
+}
+
+function showSeed() {
+  state.seed = true;
+  state.audit = null;
+  renderApp();
+}
+
+function renderSeed() {
+  mount(clear(refs.stage), h('div', { class: 'screen-body' }, sidebar(), seedSection()));
+  fillAuditCount();
+  updateLockHint();
 }
 
 // ═══ 1d — три панели ═══════════════════════════════════════════════════════
@@ -545,8 +578,9 @@ function renderTable() {
   const nav = h('div', { class: 'nav', style: 'padding:12px 20px;gap:20px;flex:none' },
     h('span', { class: 'nav-brand', style: 'display:flex;align-items:center;gap:8px' },
       icon('vault', { fill: true, size: 19, color: 'var(--color-accent)' }), 'Сейф'),
-    navLink('Записи', !state.audit, () => pick({ type: 'all' })),
+    navLink('Записи', !state.audit && !state.seed, () => pick({ type: 'all' })),
     navLink('Аудит', !!state.audit, showAudit),
+    navLink('Сид-фразы', state.seed, showSeed),
     navLink('Генератор', false, () => openWindow('generator')),
     navLink('Настройки', false, () => openWindow('settings')),
     h('div', {
@@ -736,6 +770,7 @@ const ISSUE_LABEL = {
 };
 
 async function showAudit() {
+  leaveSeed();
   state.audit = await guard(() => auditReport());
   if (!state.audit) return;
   renderAudit();
@@ -824,6 +859,9 @@ listen('vault-locked', (e) => {
   state.selectedId = null;
   state.detail = null;
   state.audit = null;
+  // Хранилище сид-фраз ядро уже закрыло вместе с сейфом — здесь остаётся
+  // только не показывать его экран после разблокировки.
+  state.seed = false;
   boot();
   if (e.payload === 'autolock') {
     setTimeout(() => toast('Сейф заблокирован из-за бездействия', { glyph: 'lock-key' }), 200);
@@ -831,11 +869,12 @@ listen('vault-locked', (e) => {
 });
 
 listen('vault-unlocked', () => boot());
-listen('entries-changed', () => { if (state.settings) refresh(); });
+listen('entries-changed', () => { if (state.settings && !state.seed) refresh(); });
 listen('need-unlock', () => boot());
 listen('show-audit', () => showAudit());
 listen('settings-changed', async (e) => {
   state.settings = e.payload;
+  if (state.seed) return; // раздел сид-фраз перерисует себя сам
   await refresh();
 });
 listen('hotkey-failed', (e) => {
@@ -868,7 +907,7 @@ window.addEventListener('keydown', async (e) => {
     await refresh();
     return;
   }
-  if (typing) return;
+  if (typing || state.seed) return;
 
   if (e.key === 'Enter' && state.detail?.has_password) {
     e.preventDefault();

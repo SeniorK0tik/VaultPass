@@ -45,7 +45,28 @@
     main_view: P.get('view') === 'table' ? 'table' : 'panels',
     quick_view: P.get('quick') || 'fields',
     launch_at_startup: false,
+    seed_vault_path: '/home/anna/.local/share/seif/wallets.seed',
+    seed_autolock_secs: 120,
+    seed_require_password_on_reveal: true,
+    seed_hide_after_secs: 30,
   };
+
+  // Раздел сид-фраз. `?seed=` задаёт его состояние: locked, empty, new.
+  const SEED_MODE = P.get('seed') || 'ok';
+  const SEED = [
+    { id: 's1', title: 'Ledger основной', wallet: 'Ledger Nano S', network: 'BTC',
+      derivation: "m/44'/0'/0'", note: 'Бумажная копия — в банковской ячейке.',
+      word_count: 24, has_passphrase: true, standard: true,
+      created_at: iso(400), modified_at: iso(400), last_viewed_at: iso(36), view_count: 3 },
+    { id: 's2', title: 'Metamask', wallet: 'Metamask', network: 'ETH', derivation: "m/44'/60'/0'",
+      note: '', word_count: 12, has_passphrase: false, standard: true,
+      created_at: iso(220), modified_at: iso(220), last_viewed_at: null, view_count: 0 },
+    { id: 's3', title: 'Monero', wallet: 'Monero GUI', network: 'XMR', derivation: '',
+      note: '', word_count: 24, has_passphrase: false, standard: false,
+      created_at: iso(90), modified_at: iso(90), last_viewed_at: null, view_count: 0 },
+  ];
+  const PHRASE = ('legal winner thank year wave sausage worth useful legal winner thank year ' +
+    'wave sausage worth useful legal winner thank year wave sausage worth title').split(' ');
 
   const HANDLERS = {
     status: () => ({
@@ -90,10 +111,64 @@
     copy_field: () => 30, copy_text: () => 30, copy_custom_field: () => 30,
     reveal_field: () => 'k7$Rm2-vQx9Lp!Zt',
     ping: () => 600,
+
+    seed_status: () => ({
+      configured: SEED_MODE !== 'new',
+      exists: SEED_MODE !== 'new',
+      unlocked: SEED_MODE === 'ok' || SEED_MODE === 'empty',
+      path: SETTINGS.seed_vault_path,
+      entry_count: SEED_MODE === 'empty' ? 0 : SEED.length,
+      format_version: 1,
+      require_password_on_reveal: P.get('nopw') !== '1',
+      hide_after_secs: 30,
+      autolock_secs: 120,
+      min_password_len: 12,
+    }),
+    seed_list: () => (SEED_MODE === 'empty' ? [] : SEED),
+    seed_get: (a) => SEED.find((e) => e.id === a.id) || SEED[0],
+    seed_countdown: () => 95,
+    seed_ping: () => 120,
+    seed_lock: () => null,
+    seed_reveal: (a) => ({
+      words: PHRASE.slice(0, (SEED.find((e) => e.id === a.id) || SEED[0]).word_count),
+      hide_after_secs: 30,
+    }),
+    seed_reveal_passphrase: () => 'дополнительное-слово',
+    seed_verify_phrase: () => true,
+    seed_clear_clipboard: () => null,
+    bip39_suggest: (a) => ['abandon', 'ability', 'able', 'about', 'above', 'absent']
+      .filter((w) => w.startsWith((a.prefix || '').toLowerCase())),
+    bip39_check: () => null,
   };
 
+  // Неизвестная команда в подставном мосте — это забытый обработчик, а не
+  // пустой ответ: молчаливый null потом ищется по всему экрану.
+  const invoke = (cmd, args = {}) => {
+    if (!(cmd in HANDLERS)) {
+      console.error(`[mock] нет обработчика команды «${cmd}»`);
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(HANDLERS[cmd](args));
+  };
+
+  // Снимок экрана, которому нужен не первый экран. `?click=Сид-фразы` нажимает
+  // кнопку или ссылку с таким текстом (или с такой подсказкой) — несколько
+  // подряд через «|», с паузой на перерисовку между ними.
+  const CLICK = P.get('click');
+  if (CLICK) {
+    const steps = CLICK.split('|');
+    window.addEventListener('load', () => {
+      steps.forEach((label, i) => setTimeout(() => {
+        const hit = [...document.querySelectorAll('button, a')].find(
+          (n) => n.textContent.trim() === label || n.title === label);
+        if (hit) hit.click();
+        else console.error(`[mock] не нашёл, на что нажать: «${label}»`);
+      }, 300 + i * 350));
+    });
+  }
+
   window.__TAURI__ = {
-    core: { invoke: (cmd, args = {}) => Promise.resolve((HANDLERS[cmd] || (() => null))(args)) },
+    core: { invoke },
     event: { listen: () => Promise.resolve(() => {}), emit: () => Promise.resolve() },
     window: {
       getCurrentWindow: () => ({

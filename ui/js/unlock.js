@@ -5,7 +5,7 @@
 // одинаковых экрана было бы дороже, чем один флаг.
 
 import { call, status } from './api.js';
-import { h, icon, clear, mount } from './ui.js';
+import { h, icon, clear, mount, nextPaint } from './ui.js';
 
 export async function renderUnlock(root, onUnlocked) {
   const st = await status();
@@ -61,7 +61,7 @@ export async function renderUnlock(root, onUnlocked) {
     try {
       // Argon2id на 64 МиБ занимает заметную долю секунды — интерфейс
       // должен успеть перерисоваться до того, как поток встанет.
-      await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+      await nextPaint();
       await call(creating ? 'create_vault' : 'unlock', { masterPassword: value });
       refs.password.value = '';
       if (refs.confirm) refs.confirm.value = '';

@@ -26,8 +26,19 @@ p.write_text(s.replace('<div id="app"',
 PY
 done
 
-(cd "$WORK" && python3 -m http.server "$PORT" >/dev/null 2>&1) &
+# `exec` здесь обязателен: без него в фоне остаётся оболочка, а сервер живёт
+# её ребёнком — и `kill %1` из ловушки убивает оболочку, оставляя python
+# висеть на порту. Осиротевший сервер потом отдаёт 404 из удалённого каталога,
+# и снимки молча получаются страницами ошибки.
+(cd "$WORK" && exec python3 -m http.server "$PORT" >/dev/null 2>&1) &
 sleep 1
+
+# Проверка, что отвечает именно наш сервер, а не чужой на том же порту.
+if ! curl -fsS -o /dev/null "http://127.0.0.1:$PORT/index.html"; then
+  echo "Порт $PORT занят чужим сервером или наш не поднялся." >&2
+  echo "Проверьте: ss -ltnp | grep $PORT — или задайте другой: PORT=8732 $0" >&2
+  exit 1
+fi
 
 if [[ "${1:-}" == "--serve" ]]; then
   echo "http://127.0.0.1:$PORT/index.html — Ctrl+C чтобы остановить"
@@ -52,5 +63,12 @@ shoot 1e-table     "index.html?view=table"                 1180 740
 shoot 1g-editor    "editor.html?label=editor"              900  634
 shoot 1h-generator "generator.html?label=generator"        470  500
 shoot 1i-settings  "settings.html?label=settings"          900  630
+
+# Раздел сид-фраз открывается щелчком по пункту в левой панели, поэтому
+# снимку нужен ещё и `click` — см. подставной мост.
+SEED="$(python3 -c 'import urllib.parse;print(urllib.parse.quote("Сид-фразы"))')"
+REVEAL="$(python3 -c 'import urllib.parse;print(urllib.parse.quote("Сид-фразы|Показать фразу|Показать"))')"
+shoot 1j-seed      "index.html?click=$SEED"                  1180 740
+shoot 1k-seed-show "index.html?nopw=1&click=$REVEAL"         1180 740
 
 echo "Готово: $OUT"
