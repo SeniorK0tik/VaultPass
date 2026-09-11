@@ -146,6 +146,10 @@ pub fn unlock_with_recovery<Rt: Runtime>(
 
 #[tauri::command]
 pub fn lock_vault<Rt: Runtime>(app: AppHandle<Rt>, state: St<'_>) -> R<()> {
+    // Сначала раздел сид-фраз — и с событием: `AppState::lock_vault` закроет
+    // его и сам, но молча, а окнам нужно знать, что показанной фразы больше
+    // нет за чем стоять.
+    crate::lock_seed_section(&app);
     if state.lock_vault() {
         log::info!("сейф закрыт");
         windows::hide_all_but_main(&app);

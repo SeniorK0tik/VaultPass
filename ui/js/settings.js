@@ -9,7 +9,7 @@ import {
   logInfo, logTail, openLogDir, seedStatus, seedPickFile, seedForget,
 } from './api.js';
 import { h, icon, $, clear, fmtBytes, fmtDate, mount } from './ui.js';
-import { setupAuxWindow, toast, guard } from './chrome.js';
+import { setupAuxWindow, toast, guard, wipeOnLock, wipeInputs } from './chrome.js';
 import { seedChangePasswordDialog } from './seed.js';
 
 const SECTIONS = [
@@ -571,6 +571,20 @@ async function fillAuditBanner() {
 }
 
 // ── сборка ─────────────────────────────────────────────────────────────────
+
+// В этом окне за модальными окнами лежат мастер-пароли (смена) и ключ
+// восстановления, показанный один раз за свою жизнь. Блокировка сейфа окно
+// настроек только прячет, поэтому убрать их нужно самим.
+wipeOnLock(() => {
+  for (const box of document.querySelectorAll('.dialog-backdrop')) {
+    wipeInputs(box);
+    // Ключ восстановления — не поле ввода, а текст на плашке.
+    for (const node of box.querySelectorAll('.mono')) node.textContent = '';
+    box.remove();
+  }
+  vaultStatus = null;
+  seedInfo = null;
+});
 
 function render() {
   mount(clear(refs.nav), SECTIONS.map((s) => h('button', {

@@ -12,7 +12,7 @@ import {
   copyField, openEntryUrl, autofillEntry, openEditor, status,
 } from './api.js';
 import { h, icon, $, clear, entryIcon, totpRing, mount } from './ui.js';
-import { toast, toastCopied, guard, trackActivity } from './chrome.js';
+import { toast, toastCopied, guard, trackActivity, wipeOnLock } from './chrome.js';
 
 let settings = null;
 let items = [];
@@ -373,6 +373,16 @@ listen('quick-opened', async () => {
 listen('settings-changed', async (e) => {
   settings = e.payload;
   build();
+  drawList();
+  drawFields();
+});
+
+// Паролей здесь не бывает — их держит Rust, — но названия, логины и почта
+// это тоже содержимое сейфа, и переживать его блокировку они не должны.
+wipeOnLock(() => {
+  items = [];
+  query = '';
+  if (refs.input) refs.input.value = '';
   drawList();
   drawFields();
 });

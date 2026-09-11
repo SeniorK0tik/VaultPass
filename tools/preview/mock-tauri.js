@@ -151,6 +151,22 @@
     return Promise.resolve(HANDLERS[cmd](args));
   };
 
+  // Настоящая доставка событий, а не заглушка: без неё нельзя проверить то,
+  // что происходит по блокировке, — а именно там живёт уборка секретов.
+  const SUBS = {};
+  const fire = (name, payload) => {
+    for (const handler of SUBS[name] || []) handler({ event: name, payload });
+  };
+
+  // `?fire=seed-locked@2500` — послать событие через столько миллисекунд.
+  const FIRE = P.get('fire');
+  if (FIRE) {
+    for (const item of FIRE.split(',')) {
+      const [name, delay] = item.split('@');
+      setTimeout(() => fire(name, null), Number(delay) || 2000);
+    }
+  }
+
   // Снимок экрана, которому нужен не первый экран. `?click=Сид-фразы` нажимает
   // кнопку или ссылку с таким текстом (или с такой подсказкой) — несколько
   // подряд через «|», с паузой на перерисовку между ними.
@@ -169,7 +185,15 @@
 
   window.__TAURI__ = {
     core: { invoke },
-    event: { listen: () => Promise.resolve(() => {}), emit: () => Promise.resolve() },
+    event: {
+      listen: (name, handler) => {
+        (SUBS[name] ||= []).push(handler);
+        return Promise.resolve(() => {
+          SUBS[name] = (SUBS[name] || []).filter((h) => h !== handler);
+        });
+      },
+      emit: (name, payload) => { fire(name, payload); return Promise.resolve(); },
+    },
     window: {
       getCurrentWindow: () => ({
         label: P.get('label') || 'main',

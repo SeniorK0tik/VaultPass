@@ -232,6 +232,11 @@ fn spawn_idle_guard<R: Runtime>(app: AppHandle<R>) {
             let _ = app.emit("seed-locked", "autolock");
         }
 
+        if state.should_autolock() {
+            // То же и здесь: закрытие сейфа уносит с собой сид-фразы, и
+            // сказать об этом надо прежде, чем ключа не станет.
+            lock_seed_section(&app);
+        }
         if state.should_autolock() && state.lock_vault() {
             log::info!("сейф закрыт по бездействию");
             windows::hide_all_but_main(&app);

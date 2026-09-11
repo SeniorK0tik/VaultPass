@@ -14,7 +14,7 @@ import {
   lockCountdown,
 } from './api.js';
 import { h, icon, $, clear, entryIcon, fmtCountdown, mount } from './ui.js';
-import { toast, toastCopied, guard, trackActivity } from './chrome.js';
+import { toast, toastCopied, guard, trackActivity, wipeOnLock } from './chrome.js';
 
 let settings = null;
 let items = [];
@@ -208,6 +208,12 @@ window.addEventListener('keydown', (e) => {
 
 listen('quick-opened', () => load());
 listen('entries-changed', () => load());
+// То же и здесь: список недавних записей — содержимое закрытого сейфа.
+wipeOnLock(() => {
+  items = [];
+  drawList();
+});
+
 listen('vault-locked', () => currentWindow().hide());
 
 build();

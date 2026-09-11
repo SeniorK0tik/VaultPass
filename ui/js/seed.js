@@ -24,7 +24,7 @@ import {
   bip39Suggest, bip39Check,
 } from './api.js';
 import { h, icon, clear, mount, nextPaint, fmtDate, fmtAgo, fmtCountdown, plural } from './ui.js';
-import { toast, guard } from './chrome.js';
+import { toast, guard, wipeOnLock } from './chrome.js';
 
 /** Сколько слов бывает в фразе — то же, что знает ядро. */
 const LENGTHS = [12, 15, 18, 21, 24];
@@ -64,7 +64,7 @@ export function leaveSeedSection() {
   // Узел раздела сейчас будет выброшен главным окном: обнуляем ссылку, чтобы
   // ответ на событие блокировки не перерисовывал то, чего уже нет на экране.
   box = null;
-  for (const node of document.querySelectorAll('.dialog-backdrop.is-seed')) node.remove();
+  closeDialogs();
   seedLock().catch(() => {});
 }
 
@@ -524,6 +524,21 @@ function forbidCopying(node) {
   node.style.webkitUserSelect = 'none';
 }
 
+/**
+ * Открытые окна раздела.
+ *
+ * Нужен именно перечень функций закрытия, а не поиск узлов по разметке:
+ * убрать узел со страницы — не то же самое, что закрыть окно. За закрытием
+ * висит уборка (обнуление массива со словами, очистка полей ввода, снятие
+ * таймеров и обработчиков), и при блокировке она обязана произойти.
+ */
+const openDialogs = new Set();
+
+/** Закрывает все окна раздела — с уборкой, а не просто убирает их с экрана. */
+function closeDialogs() {
+  for (const close of [...openDialogs]) close();
+}
+
 /** Окно поверх экрана. Возвращает узел и функцию закрытия. */
 function openDialog({ title, width = 460 }) {
   let onClose = null;
@@ -539,6 +554,9 @@ function openDialog({ title, width = 460 }) {
       body));
 
   function close() {
+    // Закрыть можно дважды — например, окно потеряло фокус, а следом истёк
+    // срок показа. Уборка при этом должна пройти один раз.
+    if (!openDialogs.delete(close)) return;
     back.remove();
     document.removeEventListener('keydown', onKey, true);
     if (onClose) onClose();
@@ -548,6 +566,7 @@ function openDialog({ title, width = 460 }) {
   }
 
   document.addEventListener('keydown', onKey, true);
+  openDialogs.add(close);
   mount(document.body, back);
   return { node: back, body, close, whenClosed: (fn) => { onClose = fn; } };
 }
@@ -1138,14 +1157,18 @@ export function seedChangePasswordDialog() {
 
 // ═══ события ═══════════════════════════════════════════════════════════════
 
+// Сейф закрывают — вместе с ним ядро закрывает и хранилище сид-фраз. Окна
+// показа и ввода живут поверх страницы и сами об этом не узнают.
+wipeOnLock(closeDialogs);
+
 // Файл раздела можно выбрать и из окна настроек — тогда главное окно узнаёт
 // об этом отсюда.
 listen('seed-changed', () => { if (box) reload(); });
 
 listen('seed-locked', (e) => {
-  // Все открытые окна показа закрываются: на экране не должно остаться
-  // ни одного слова от закрытого хранилища.
-  for (const node of document.querySelectorAll('.dialog-backdrop.is-seed')) node.remove();
+  // Окна показа и ввода закрываются с уборкой: от закрытого хранилища не
+  // должно остаться ни слова — ни на экране, ни в памяти разметки.
+  closeDialogs();
   if (!box) return;
   reload();
   if (e.payload === 'autolock') {

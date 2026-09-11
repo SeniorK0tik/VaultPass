@@ -9,7 +9,7 @@ import {
 import {
   h, icon, $, clear, entryIcon, meter, totpRing,
   fmtDate, fmtDateShort, fmtAgo, fmtDays, fmtCountdown, plural, mount } from './ui.js';
-import { titlebar, toast, toastCopied, guard, trackActivity } from './chrome.js';
+import { titlebar, toast, toastCopied, guard, trackActivity, wipeOnLock } from './chrome.js';
 import { renderUnlock } from './unlock.js';
 import { seedSection, leaveSeedSection } from './seed.js';
 
@@ -853,6 +853,18 @@ async function lockNow() {
 }
 
 // ═══ события и клавиатура ══════════════════════════════════════════════════
+
+// Показанный по кнопке «глаз» пароль лежит в состоянии экрана. Перерисовка
+// на экран разблокировки убирает его с глаз, но не из памяти разметки.
+wipeOnLock(() => {
+  state.revealed = false;
+  state.revealedValue = null;
+  state.entries = [];
+  state.counts = null;
+  state.folders = [];
+  state.detail = null;
+  state.audit = null;
+});
 
 listen('vault-locked', (e) => {
   clearInterval(countdownTimer);

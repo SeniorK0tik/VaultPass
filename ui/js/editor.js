@@ -8,7 +8,7 @@ import {
   call, listen, loadDraft, saveDraft, folders, tags, estimate, generatePassword, copyText,
 } from './api.js';
 import { h, icon, $, clear, mount } from './ui.js';
-import { setupAuxWindow, toast, toastCopied, guard } from './chrome.js';
+import { setupAuxWindow, toast, toastCopied, guard, wipeOnLock, wipeInputs } from './chrome.js';
 
 const KINDS = [
   { value: 'password', label: 'Пароль' },
@@ -463,6 +463,22 @@ const root = setupAuxWindow('Редактирование', {
   onEscape: confirmDiscard,
 });
 refs.titlebar = root.firstElementChild;
+
+// Блокировка сейфа прячет это окно, но не закрывает его: вебвью с открытой
+// карточкой живёт дальше, а в ней пароль, заметка и значения своих полей —
+// причём в полях ввода, то есть и в разметке тоже. Всё это должно уйти.
+// Несохранённая правка при этом теряется, и это правильно: записать её
+// некуда — ключа больше нет.
+wipeOnLock(() => {
+  const root = $('#app');
+  wipeInputs(root);
+  clear(root);
+  mount(root, refs.titlebar);
+  draft = null;
+  saved = null;
+  allFolders = [];
+  allTags = [];
+});
 
 // Окно переиспользуется: главное окно шлёт сюда, какую запись открыть.
 listen('open-entry', (e) => {

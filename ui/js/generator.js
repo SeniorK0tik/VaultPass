@@ -6,7 +6,7 @@
 
 import { generatePassword, copyText, listen } from './api.js';
 import { h, icon, $, clear, mount } from './ui.js';
-import { setupAuxWindow, toast, toastCopied, guard } from './chrome.js';
+import { setupAuxWindow, toast, toastCopied, guard, wipeOnLock } from './chrome.js';
 
 const MODES = [
   { id: 'password',   label: 'Пароль', min: 8, max: 64, step: 1, def: 16, unit: 'Длина' },
@@ -237,6 +237,18 @@ window.addEventListener('keydown', (e) => {
   if (e.target.matches('input,textarea')) return;
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); regenerate(); }
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') { e.preventDefault(); copy(); }
+});
+
+// Окно генератора по блокировке тоже лишь прячется, а в нём — свежий пароль
+// на плашке и список прошлых. В сейф они не попадали, но это ровно те
+// строки, ради которых сейф и заводят.
+wipeOnLock(() => {
+  state.result = null;
+  state.history = [];
+  refs.value.textContent = '';
+  refs.bits.textContent = '';
+  refs.meterFill.style.width = '0%';
+  for (const box of document.querySelectorAll('.dialog-backdrop')) box.remove();
 });
 
 listen('settings-changed', () => {});
