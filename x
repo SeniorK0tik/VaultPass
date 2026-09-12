@@ -201,6 +201,7 @@ cmd_release() {
   cmd_build "$(os_name)"
   echo
   ok "Локальные пакеты собраны."
+  grep -q "^## $v " CHANGELOG.md 2>/dev/null || warn "В CHANGELOG.md нет записи про $v."
   say "Чтобы собрать обе платформы, поставьте тег — CI сделает остальное:"
   echo "   git commit -am \"Версия $v\" && git tag v$v && git push --tags"
 }
