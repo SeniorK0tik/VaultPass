@@ -616,7 +616,7 @@ async function build() {
     },
       refs.nav,
       h('div', { class: 'spacer', style: 'padding:9px;font-size:10.5px;color:var(--color-neutral-700);line-height:1.5' },
-        `Сейф 1.4 · формат хранилища v${vaultStatus.format_version}`)),
+        `Сейф 1.6 · формат хранилища v${vaultStatus.format_version}`)),
     refs.body));
 
   render();
