@@ -37,6 +37,7 @@ const state = {
 
 const refs = {};
 let searchTimer = null;
+let loadSeq = 0;    // номер последней загрузки: ответы на старые запросы отбрасываются
 let countdownTimer = null;
 
 // ═══ каркас окна ═══════════════════════════════════════════════════════════
@@ -78,20 +79,35 @@ function startCountdown() {
   countdownTimer = setInterval(updateLockHint, 15_000);
 }
 
+/**
+ * Загружает список, счётчики и карточку. Возвращает `false`, если пока шёл
+ * запрос, начался более новый: при быстром наборе ответ на «ab» может прийти
+ * позже ответа на «abc» и перетереть его, поэтому состояние меняется только
+ * по последнему запросу и целиком, а не по частям.
+ */
 async function loadAll() {
+  const seq = ++loadSeq;
   const [list, c, f] = await Promise.all([
     guard(() => listEntries({ scope: state.scope, query: state.query, sort: state.sort }), { silent: true }),
     guard(() => counts(), { silent: true }),
     guard(() => folders(), { silent: true }),
   ]);
-  state.entries = list || [];
+  const entries = list || [];
+  const selectedId = entries.some((e) => e.id === state.selectedId)
+    ? state.selectedId
+    : entries[0]?.id ?? null;
+  const detail = selectedId
+    ? await guard(() => getEntry(selectedId), { silent: true })
+    : null;
+  if (seq !== loadSeq) return false;
+
+  state.entries = entries;
   state.counts = c || null;
   state.folders = f || [];
-
-  if (!state.entries.some((e) => e.id === state.selectedId)) {
-    state.selectedId = state.entries[0]?.id ?? null;
-  }
-  await loadDetail();
+  state.selectedId = selectedId;
+  state.revealed = false;
+  state.detail = detail;
+  return true;
 }
 
 async function loadDetail() {
@@ -102,17 +118,30 @@ async function loadDetail() {
 }
 
 async function refresh() {
-  await loadAll();
-  renderApp();
+  if (await loadAll()) renderApp();
 }
 
 // ═══ выбор вида ════════════════════════════════════════════════════════════
 
+/**
+ * Экран перестраивается целиком, и поле поиска вместе с ним создаётся
+ * заново. Если в нём печатали, фокус и курсор переносятся в новое поле —
+ * иначе после первой же буквы пришлось бы снова щёлкать по нему мышью.
+ */
 function renderApp() {
-  if (state.seed) return renderSeed();
-  if (state.audit) return renderAudit();
-  if (state.settings.main_view === 'table') return renderTable();
-  return renderPanels();
+  const old = refs.search;
+  const typing = old && document.activeElement === old;
+  const caret = typing ? [old.selectionStart, old.selectionEnd, old.selectionDirection] : null;
+
+  if (state.seed) renderSeed();
+  else if (state.audit) renderAudit();
+  else if (state.settings.main_view === 'table') renderTable();
+  else renderPanels();
+
+  if (typing && refs.search && refs.search !== old && refs.search.isConnected) {
+    refs.search.focus();
+    refs.search.setSelectionRange(...caret);
+  }
 }
 
 // ═══ левая панель (общая для 1d и раздела «Аудит») ═════════════════════════
@@ -187,7 +216,8 @@ function sidebar() {
       }, icon('lock-key', { size: 14 }))));
 }
 
-function searchButton() {
+/** Поле поиска; одно на оба вида, кладётся в `refs.search`. */
+function searchInput() {
   refs.search = h('input', {
     class: 'input input-bare',
     style: 'font-size:12.5px',
@@ -198,6 +228,11 @@ function searchButton() {
       searchTimer = setTimeout(refresh, 110);
     },
   });
+  return refs.search;
+}
+
+function searchButton() {
+  searchInput();
   return h('div', {
     style: 'display:flex;align-items:center;gap:8px;padding:6px 9px;margin-bottom:14px;flex:none;' +
            'border:1px solid var(--color-divider);border-radius:8px;background:var(--color-surface)',
@@ -588,7 +623,7 @@ function renderTable() {
              'border:1px solid var(--color-divider);border-radius:8px;background:var(--color-surface)',
     },
       icon('magnifying-glass', { size: 14, color: 'var(--color-neutral-600)' }),
-      h('div', { style: 'flex:1;min-width:0' }, searchInputForTable()),
+      h('div', { style: 'flex:1;min-width:0' }, searchInput()),
       h('span', { class: 'key' }, 'Ctrl+K')),
     h('button', {
       class: 'btn btn-primary', type: 'button', onClick: () => openEditor(null),
@@ -659,20 +694,6 @@ function renderTable() {
           `${state.counts?.total ?? 0} ${plural(state.counts?.total ?? 0, 'запись', 'записи', 'записей')} · синхронизация не требуется`))),
     tableAside()));
   fillAuditCount();
-}
-
-function searchInputForTable() {
-  refs.search = h('input', {
-    class: 'input input-bare',
-    style: 'font-size:12.5px',
-    placeholder: 'Поиск', value: state.query, autocomplete: 'off',
-    onInput: (e) => {
-      state.query = e.target.value;
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(refresh, 110);
-    },
-  });
-  return refs.search;
 }
 
 function navLink(label, active, onClick) {
